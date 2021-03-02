@@ -1,9 +1,3 @@
--- Author: Tyler Pena
--- Created: 2/25/21
--- Creates Transaction Table
-
-use opdex;
-
 create table pair
 (
     Id          bigint          not null,
@@ -24,4 +18,3 @@ create table pair
 
 alter table pair
     add primary key (Id);
-

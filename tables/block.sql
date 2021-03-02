@@ -1,4 +1,3 @@
--- auto-generated definition
 create table block
 (
     Height      bigint unsigned not null,

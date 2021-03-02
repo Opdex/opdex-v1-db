@@ -1,9 +1,3 @@
--- Author: Tyler Pena
--- Created: 2/25/21
--- Creates Transaction Table
-
-use opdex;
-
 create table transaction_event_mint
 (
     Id            bigint          not null,
@@ -24,4 +18,3 @@ create index transaction_event_mint_Sender_index
 
 alter table transaction_event_mint
     add primary key (Id);
-

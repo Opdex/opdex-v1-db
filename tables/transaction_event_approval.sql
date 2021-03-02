@@ -1,9 +1,3 @@
--- Author: Tyler Pena
--- Created: 2/25/21
--- Creates Transaction Table
-
-use opdex;
-
 create table transaction_event_approval
 (
     Id            bigint      not null,
