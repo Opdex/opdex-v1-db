@@ -1,21 +1,29 @@
+-- auto-generated definition
 create table market_snapshot
 (
-    Id                    bigint         not null,
-    TokenCount            int            not null,
-    PairCount             int            not null,
-    DailyTransactionCount int            null,
-    CrsPrice              decimal(10, 2) not null,
-    Liquidity             decimal(10, 2) not null,
-    DailyVolume           decimal(10, 2) not null,
-    DailyFees             decimal(10, 2) not null,
-    Block                 bigint         not null,
-    CreatedDate           datetime       not null,
-    constraint market_snapshot_Block_uindex
-        unique (Block),
+    Id               bigint auto_increment,
+    MarketId         bigint                      not null,
+    TransactionCount int(11)        default 0    not null,
+    Liquidity        decimal(20, 2) default 0.00 not null,
+    Volume           decimal(20, 2) default 0.00 not null,
+    StakingWeight    varchar(78)    default '0'  not null,
+    StakingUsd       decimal(20, 2) default 0.00 not null,
+    StakerRewards    decimal(20, 2) default 0.00 not null,
+    ProviderRewards  decimal(20, 2) default 0.00 not null,
+    SnapshotType     smallint(6)                 not null,
+    StartDate        datetime                    not null,
+    EndDate          datetime                    not null,
+    CreatedDate      datetime                    not null,
     constraint market_snapshot_Id_uindex
-        unique (Id)
+        unique (Id),
+    constraint market_snapshot_market_Id_fk
+        foreign key (MarketId) references market (Id),
+    constraint market_snapshot_snapshot_type_Id_fk
+        foreign key (SnapshotType) references snapshot_type (Id)
 );
+
+create index market_snapshot_MarketId_StartDate_EndDate_index
+    on market_snapshot (MarketId, StartDate, EndDate);
 
 alter table market_snapshot
     add primary key (Id);
-

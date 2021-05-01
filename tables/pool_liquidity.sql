@@ -1,8 +1,10 @@
-create table pair
+-- auto-generated definition
+create table pool_liquidity
 (
-    Id          bigint          not null,
+    Id          bigint auto_increment,
+    TokenId     bigint(20)      not null,
+    MarketId    bigint(20)      null,
     Address     varchar(50)     not null,
-    TokenId     bigint          not null,
     ReserveCrs  bigint unsigned not null,
     ReserveSrc  varchar(78)     not null,
     CreatedDate datetime        not null,
@@ -12,9 +14,12 @@ create table pair
         unique (Id),
     constraint pair_TokenId_uindex
         unique (TokenId),
-    constraint pair_token_Id_fk
+    constraint pool_liquidity_market_Id_fk
+        foreign key (MarketId) references market (Id),
+    constraint pool_liquidity_token_Id_fk
         foreign key (TokenId) references token (Id)
 );
 
-alter table pair
+alter table pool_liquidity
     add primary key (Id);
+

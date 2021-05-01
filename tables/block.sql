@@ -1,7 +1,8 @@
+-- auto-generated definition
 create table block
 (
     Height      bigint unsigned not null,
-    Hash        varchar(50)     not null,
+    Hash        varchar(64)     not null,
     Time        datetime        not null,
     MedianTime  datetime        not null,
     CreatedDate datetime        not null,
@@ -13,4 +14,3 @@ create table block
 
 alter table block
     add primary key (Height);
-

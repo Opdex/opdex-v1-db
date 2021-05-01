@@ -1,10 +1,11 @@
+-- auto-generated definition
 create table transaction
 (
-    Id          bigint          not null,
+    Id          bigint auto_increment,
     `From`      varchar(50)     not null,
     `To`        varchar(50)     not null,
-    Hash        varchar(50)     not null,
-    GasUsed     int             not null,
+    Hash        varchar(64)     not null,
+    GasUsed     int(11)         not null,
     Block       bigint unsigned not null,
     CreatedDate datetime        not null,
     constraint transaction_Id_uindex
