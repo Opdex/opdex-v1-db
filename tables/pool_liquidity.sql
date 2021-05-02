@@ -2,8 +2,8 @@
 create table pool_liquidity
 (
     Id          bigint auto_increment,
-    TokenId     bigint(20)      not null,
-    MarketId    bigint(20)      null,
+    TokenId     bigint          not null,
+    MarketId    bigint          null,
     Address     varchar(50)     not null,
     ReserveCrs  bigint unsigned not null,
     ReserveSrc  varchar(78)     not null,
@@ -22,4 +22,3 @@ create table pool_liquidity
 
 alter table pool_liquidity
     add primary key (Id);
-

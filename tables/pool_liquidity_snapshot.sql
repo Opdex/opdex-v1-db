@@ -2,11 +2,11 @@
 create table pool_liquidity_snapshot
 (
     Id               bigint auto_increment,
-    PoolId           bigint                      not null,
-    TransactionCount int(11)        default 0    not null,
+    LiquidityPoolId  bigint                      not null,
+    TransactionCount int            default 0    not null,
     ReserveCrs       varchar(78)    default '0'  not null,
     ReserveSrc       varchar(78)    default '0'  not null,
-    ReserveUsd       decimal(20, 2)              not null,
+    ReserveUsd       decimal(20, 2) default 0.00 not null,
     VolumeCrs        varchar(78)    default '0'  not null,
     VolumeSrc        varchar(78)    default '0'  not null,
     VolumeUsd        decimal(20, 2) default 0.00 not null,
@@ -19,17 +19,16 @@ create table pool_liquidity_snapshot
     EndDate          datetime                    not null,
     constraint pair_snapshot_Id_uindex
         unique (Id),
-    constraint pair_snapshot_PoolId_uindex
-        unique (PoolId),
+    constraint pool_liquidity_snapshot_LiquidityPoolId_uindex
+        unique (LiquidityPoolId),
     constraint pool_liquidity_snapshot_pool_liquidity_Id_fk
-        foreign key (PoolId) references pool_liquidity (Id),
+        foreign key (LiquidityPoolId) references pool_liquidity (Id),
     constraint pool_liquidity_snapshot_snapshot_type_Id_fk
         foreign key (SnapshotType) references snapshot_type (Id)
 );
 
-create index pool_liquidity_snapshot_PoolId_StartDate_EndDate_index
-    on pool_liquidity_snapshot (PoolId, StartDate, EndDate);
+create index pool_liquidity_snapshot_LiquidityPoolId_StartDate_EndDate_index
+    on pool_liquidity_snapshot (LiquidityPoolId, StartDate, EndDate);
 
 alter table pool_liquidity_snapshot
     add primary key (Id);
-

@@ -6,7 +6,7 @@ create table token
     Symbol      varchar(10) not null,
     Name        varchar(50) not null,
     Decimals    smallint(2) not null,
-    Sats        bigint(20)  not null,
+    Sats        bigint      not null,
     TotalSupply varchar(78) not null,
     CreatedDate datetime    not null,
     constraint token_Address_uindex
@@ -18,3 +18,5 @@ create table token
 alter table token
     add primary key (Id);
 
+insert into token(Address, Symbol, Name, Decimals, Sats, TotalSupply, CreatedDate)
+values('CRS', 'CRS', 'Cirrus', 8, 100000000, 13000000000000000, UTC_TIMESTAMP());
