@@ -2,8 +2,8 @@
 create table transaction_log
 (
     Id            bigint auto_increment,
-    TransactionId bigint(20)                   not null,
-    LogTypeId     smallint(6)                  not null,
+    TransactionId bigint                       not null,
+    LogTypeId     smallint                     not null,
     SortOrder     smallint(2)                  not null,
     Contract      varchar(50)                  not null,
     Details       longtext collate utf8mb4_bin null,

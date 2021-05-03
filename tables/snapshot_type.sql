@@ -1,7 +1,7 @@
 -- auto-generated definition
 create table snapshot_type
 (
-    Id           smallint(6)  not null,
+    Id           smallint    not null,
     SnapshotType varchar(50) not null,
     constraint snapshot_type_Id_uindex
         unique (Id)
