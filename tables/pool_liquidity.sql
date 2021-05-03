@@ -2,12 +2,10 @@
 create table pool_liquidity
 (
     Id          bigint auto_increment,
-    TokenId     bigint          not null,
-    MarketId    bigint          null,
-    Address     varchar(50)     not null,
-    ReserveCrs  bigint unsigned not null,
-    ReserveSrc  varchar(78)     not null,
-    CreatedDate datetime        not null,
+    TokenId     bigint      not null,
+    MarketId    bigint      null,
+    Address     varchar(50) not null,
+    CreatedDate datetime    not null,
     constraint pair_Address_uindex
         unique (Address),
     constraint pair_Id_uindex

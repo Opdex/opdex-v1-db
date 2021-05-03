@@ -2,7 +2,7 @@
 create table pool_mining
 (
     Id                   bigint auto_increment,
-    LiquidityPoolId      bigint(20)      not null,
+    LiquidityPoolId      bigint          not null,
     Address              varchar(50)     not null,
     RewardRate           varchar(78)     not null,
     MiningPeriodEndBlock bigint unsigned not null,

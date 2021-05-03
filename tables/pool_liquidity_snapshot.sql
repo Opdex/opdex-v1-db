@@ -14,17 +14,15 @@ create table pool_liquidity_snapshot
     StakingUsd       decimal(20, 2) default 0.00 not null,
     ProviderRewards  decimal(20, 2) default 0.00 not null,
     StakerRewards    decimal(20, 2) default 0.00 not null,
-    SnapshotType     smallint                    not null,
+    SnapshotTypeId   smallint                    not null,
     StartDate        datetime                    not null,
     EndDate          datetime                    not null,
     constraint pair_snapshot_Id_uindex
         unique (Id),
-    constraint pool_liquidity_snapshot_LiquidityPoolId_uindex
-        unique (LiquidityPoolId),
     constraint pool_liquidity_snapshot_pool_liquidity_Id_fk
         foreign key (LiquidityPoolId) references pool_liquidity (Id),
     constraint pool_liquidity_snapshot_snapshot_type_Id_fk
-        foreign key (SnapshotType) references snapshot_type (Id)
+        foreign key (SnapshotTypeId) references snapshot_type (Id)
 );
 
 create index pool_liquidity_snapshot_LiquidityPoolId_StartDate_EndDate_index
@@ -32,3 +30,4 @@ create index pool_liquidity_snapshot_LiquidityPoolId_StartDate_EndDate_index
 
 alter table pool_liquidity_snapshot
     add primary key (Id);
+    
