@@ -19,15 +19,13 @@ create table pool_liquidity_snapshot
     EndDate          datetime                    not null,
     constraint pair_snapshot_Id_uindex
         unique (Id),
+    constraint pool_liquidity_snapshot_LiquidityPoolId_StartDate_EndDate_uindex
+        unique (LiquidityPoolId, StartDate, EndDate),
     constraint pool_liquidity_snapshot_pool_liquidity_Id_fk
         foreign key (LiquidityPoolId) references pool_liquidity (Id),
     constraint pool_liquidity_snapshot_snapshot_type_Id_fk
         foreign key (SnapshotTypeId) references snapshot_type (Id)
 );
 
-create index pool_liquidity_snapshot_LiquidityPoolId_StartDate_EndDate_index
-    on pool_liquidity_snapshot (LiquidityPoolId, StartDate, EndDate);
-
 alter table pool_liquidity_snapshot
     add primary key (Id);
-    
