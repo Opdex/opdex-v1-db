@@ -112,8 +112,8 @@ alter table block
 
 create table index_lock
 (
-    Locked       bit      null,
-    ModifiedDate datetime null
+    Locked       bit      not null,
+    ModifiedDate datetime not null
 );
 
 create table market_deployer
@@ -530,6 +530,9 @@ alter table transaction_log
 
 insert into token(Id, Address, Symbol, Name, Decimals, Sats, TotalSupply, CreatedBlock, ModifiedBlock)
 values(1, 'CRS', 'CRS', 'Cirrus', 8, 100000000, '13000000000000000', 1, 1);
+
+insert into index_lock(Locked, ModifiedDate)
+values (0, '0000-00-00 00:00:00');
 
 insert into transaction_log_type(Id, LogType)
 values
