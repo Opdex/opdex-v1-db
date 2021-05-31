@@ -548,19 +548,18 @@ values
 (10, 'ApprovalLog'),
 (11, 'TransferLog'),
 (12, 'ChangeMarketLog'),
-(13, 'StartStakingLog'),
+(13, 'StakeLog'),
 (14, 'CollectStakingRewardsLog'),
-(15, 'StopStakingLog'),
-(16, 'RewardMiningPoolLog'),
-(17, 'NominationLog'),
-(18, 'MineLog'),
-(19, 'CollectMiningRewardsLog'),
-(20, 'EnableMiningLog'),
-(21, 'DistributionLog'),
-(22, 'CreateVaultCertificateLog'),
-(23, 'RevokeVaultCertificateLog'),
-(24, 'RedeemVaultCertificateLog'),
-(25, 'ChangeVaultOwnerLog');
+(15, 'RewardMiningPoolLog'),
+(16, 'NominationLog'),
+(17, 'MineLog'),
+(18, 'CollectMiningRewardsLog'),
+(19, 'EnableMiningLog'),
+(20, 'DistributionLog'),
+(21, 'CreateVaultCertificateLog'),
+(22, 'RevokeVaultCertificateLog'),
+(23, 'RedeemVaultCertificateLog'),
+(24, 'ChangeVaultOwnerLog');
 
 insert into snapshot_type
 values
