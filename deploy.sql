@@ -304,10 +304,11 @@ create table market
     DeployerId       bigint          not null,
     StakingTokenId   bigint          null,
     Owner            varchar(50)     not null,
-    AuthProviders    bit             not null,
-    AuthTraders      bit             not null,
-    Fee              smallint        not null,
     AuthPoolCreators bit             not null,
+    AuthTraders      bit             not null,
+    AuthProviders    bit             not null,
+    TransactionFee   smallint        not null,
+    MarketFeeEnabled bit             not null,
     CreatedBlock     bigint unsigned not null,
     ModifiedBlock    bigint unsigned not null,
     constraint market_Address_uindex
@@ -324,6 +325,25 @@ create index market_Owner_index
     on market (Owner);
 
 alter table market
+    add primary key (Id);
+
+create table market_router
+(
+    Id            bigint auto_increment,
+    Address       varchar(50)     not null,
+    MarketId      bigint          not null,
+    IsActive      tinyint(1)      not null,
+    ModifiedBlock bigint unsigned not null,
+    CreatedBlock  bigint unsigned not null,
+    constraint market_router_Address_uindex
+        unique (Address),
+    constraint market_router_Id_uindex
+        unique (Id),
+    constraint market_router_market_Id_fk
+        foreign key (MarketId) references market (Id)
+);
+
+alter table market_router
     add primary key (Id);
 
 create table market_snapshot
