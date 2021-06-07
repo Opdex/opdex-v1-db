@@ -132,6 +132,37 @@ create table market_deployer
 alter table market_deployer
     add primary key (Id);
 
+create table market
+(
+    Id               bigint auto_increment,
+    Address          varchar(50)     not null,
+    DeployerId       bigint          not null,
+    StakingTokenId   bigint          null,
+    Owner            varchar(50)     not null,
+    AuthPoolCreators bit             not null,
+    AuthTraders      bit             not null,
+    AuthProviders    bit             not null,
+    TransactionFee   smallint        not null,
+    MarketFeeEnabled bit             not null,
+    CreatedBlock     bigint unsigned not null,
+    ModifiedBlock    bigint unsigned not null,
+    constraint market_Address_uindex
+        unique (Address),
+    constraint market_Id_uindex
+        unique (Id),
+    constraint market_deployer_Id_fk
+        foreign key (DeployerId) references market_deployer (Id)
+);
+
+create index market_Owner_index
+    on market (Owner);
+
+create index market_token_Id_fk
+    on market (StakingTokenId);
+
+alter table market
+    add primary key (Id);
+
 create table market_permission
 (
     Id            bigint auto_increment,
@@ -162,6 +193,25 @@ create table market_permission_type
 );
 
 alter table market_permission_type
+    add primary key (Id);
+
+create table market_router
+(
+    Id            bigint auto_increment,
+    Address       varchar(50)     not null,
+    MarketId      bigint          not null,
+    IsActive      tinyint(1)      not null,
+    ModifiedBlock bigint unsigned not null,
+    CreatedBlock  bigint unsigned not null,
+    constraint market_router_Address_uindex
+        unique (Address),
+    constraint market_router_Id_uindex
+        unique (Id),
+    constraint market_router_market_Id_fk
+        foreign key (MarketId) references market (Id)
+);
+
+alter table market_router
     add primary key (Id);
 
 create table odx_distribution
@@ -277,55 +327,6 @@ create table snapshot_type
 alter table snapshot_type
     add primary key (Id);
 
-create table token
-(
-    Id            bigint auto_increment,
-    Address       varchar(50)     not null,
-    Symbol        varchar(10)     not null,
-    Name          varchar(50)     not null,
-    Decimals      smallint(2)     not null,
-    Sats          bigint          not null,
-    TotalSupply   varchar(78)     not null,
-    CreatedBlock  bigint unsigned not null,
-    ModifiedBlock bigint unsigned not null,
-    constraint token_Address_uindex
-        unique (Address),
-    constraint token_Id_uindex
-        unique (Id)
-);
-
-alter table token
-    add primary key (Id);
-
-create table market
-(
-    Id               bigint auto_increment,
-    Address          varchar(50)     not null,
-    DeployerId       bigint          not null,
-    StakingTokenId   bigint          null,
-    Owner            varchar(50)     not null,
-    AuthProviders    bit             not null,
-    AuthTraders      bit             not null,
-    Fee              smallint        not null,
-    AuthPoolCreators bit             not null,
-    CreatedBlock     bigint unsigned not null,
-    ModifiedBlock    bigint unsigned not null,
-    constraint market_Address_uindex
-        unique (Address),
-    constraint market_Id_uindex
-        unique (Id),
-    constraint market_deployer_Id_fk
-        foreign key (DeployerId) references market_deployer (Id),
-    constraint market_token_Id_fk
-        foreign key (StakingTokenId) references token (Id)
-);
-
-create index market_Owner_index
-    on market (Owner);
-
-alter table market
-    add primary key (Id);
-
 create table market_snapshot
 (
     Id               bigint auto_increment,
@@ -355,6 +356,26 @@ create index market_snapshot_MarketId_StartDate_EndDate_index
 alter table market_snapshot
     add primary key (Id);
 
+create table token
+(
+    Id            bigint auto_increment,
+    Address       varchar(50)     not null,
+    Symbol        varchar(10)     not null,
+    Name          varchar(50)     not null,
+    Decimals      smallint(2)     not null,
+    Sats          bigint          not null,
+    TotalSupply   varchar(78)     not null,
+    CreatedBlock  bigint unsigned not null,
+    ModifiedBlock bigint unsigned not null,
+    constraint token_Address_uindex
+        unique (Address),
+    constraint token_Id_uindex
+        unique (Id)
+);
+
+alter table token
+    add primary key (Id);
+
 create table pool_liquidity
 (
     Id            bigint auto_increment,
@@ -367,8 +388,8 @@ create table pool_liquidity
         unique (Address),
     constraint pair_Id_uindex
         unique (Id),
-    constraint pair_TokenId_uindex
-        unique (TokenId),
+    constraint pool_liquidity_MarketId_TokenId_uindex
+        unique (MarketId, TokenId),
     constraint pool_liquidity_market_Id_fk
         foreign key (MarketId) references market (Id),
     constraint pool_liquidity_token_Id_fk
