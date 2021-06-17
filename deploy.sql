@@ -163,6 +163,15 @@ create index market_token_Id_fk
 alter table market
     add primary key (Id);
 
+create table market_permission_type
+(
+    Id             int         not null,
+    PermissionType varchar(50) not null,
+    constraint primary key (Id),
+    constraint market_permission_type_PermissionType_uindex
+        unique (PermissionType)
+);
+
 create table market_permission
 (
     Id            bigint auto_increment,
@@ -170,30 +179,17 @@ create table market_permission
     User          varchar(50)     not null,
     Permission    int             not null,
     IsAuthorized  bit             not null,
-    Blame         varchar(50)     null,
+    Blame         varchar(50)     not null,
     CreatedBlock  bigint unsigned not null,
     ModifiedBlock bigint unsigned not null,
-    constraint market_permissions_Id_uindex
-        unique (Id),
-    constraint market_permissions_MarketId_User_Permission_uindex
-        unique (MarketId, User, Permission),
-    constraint market_permissions_pk
-        unique (Blame)
+    constraint primary key (Id),
+    constraint market_permission_MarketId_fk
+        foreign key (MarketId) references market (Id),
+    constraint market_permission_Permission_fk
+        foreign key (Permission) references market_permission_type (Id),
+    constraint market_permission_MarketId_User_Permission_uindex
+        unique (MarketId, User, Permission)
 );
-
-alter table market_permission
-    add primary key (Id);
-
-create table market_permission_type
-(
-    Id             int         not null,
-    PermissionType varchar(50) not null,
-    constraint permission_type_Id_uindex
-        unique (Id)
-);
-
-alter table market_permission_type
-    add primary key (Id);
 
 create table market_router
 (
@@ -592,7 +588,6 @@ values
 
 insert into market_permission_type
 values
-    (0, 'Unknown'),
     (1, 'CreatePool'),
     (2, 'Trade'),
     (3, 'Provide'),
