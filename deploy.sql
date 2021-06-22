@@ -294,23 +294,6 @@ create table odx_vault_certificate
 alter table odx_vault_certificate
     add primary key (Id);
 
-create table pool_liquidity_snapshot
-(
-    Id               bigint auto_increment,
-    LiquidityPoolId  bigint   not null,
-    SnapshotTypeId   int      not null,
-    TransactionCount int      not null,
-    StartDate        datetime null,
-    EndDate          datetime null,
-    ModifiedDate     datetime null,
-    Details          longtext null,
-    constraint pool_liquidity_snapshot_test_Id_uindex
-        unique (Id)
-);
-
-alter table pool_liquidity_snapshot
-    add primary key (Id);
-
 create table snapshot_type
 (
     Id           smallint    not null,
@@ -324,19 +307,13 @@ alter table snapshot_type
 
 create table market_snapshot
 (
-    Id               bigint auto_increment,
-    MarketId         bigint                      not null,
-    TransactionCount int            default 0    not null,
-    Liquidity        decimal(20, 2) default 0.00 not null,
-    Volume           decimal(20, 2) default 0.00 not null,
-    StakingWeight    varchar(78)    default '0'  not null,
-    StakingUsd       decimal(20, 2) default 0.00 not null,
-    StakerRewards    decimal(20, 2) default 0.00 not null,
-    ProviderRewards  decimal(20, 2) default 0.00 not null,
-    SnapshotTypeId   smallint                    not null,
-    StartDate        datetime                    not null,
-    EndDate          datetime                    not null,
-    CreatedDate      datetime                    not null,
+    Id             bigint auto_increment,
+    MarketId       bigint   not null,
+    SnapshotTypeId smallint not null,
+    StartDate      datetime not null,
+    EndDate        datetime not null,
+    ModifiedDate   datetime not null,
+    Details        longtext not null,
     constraint market_snapshot_Id_uindex
         unique (Id),
     constraint market_snapshot_market_Id_fk
@@ -345,8 +322,14 @@ create table market_snapshot
         foreign key (SnapshotTypeId) references snapshot_type (Id)
 );
 
+create index market_snapshot_EndDate_index
+    on market_snapshot (EndDate);
+
 create index market_snapshot_MarketId_StartDate_EndDate_index
     on market_snapshot (MarketId, StartDate, EndDate);
+
+create index market_snapshot_StartDate_index
+    on market_snapshot (StartDate);
 
 alter table market_snapshot
     add primary key (Id);
@@ -399,6 +382,31 @@ create table pool_liquidity
 );
 
 alter table pool_liquidity
+    add primary key (Id);
+
+create table pool_liquidity_snapshot
+(
+    Id               bigint auto_increment,
+    LiquidityPoolId  bigint   not null,
+    SnapshotTypeId   int      not null,
+    TransactionCount int      not null,
+    StartDate        datetime null,
+    EndDate          datetime null,
+    ModifiedDate     datetime null,
+    Details          longtext null,
+    constraint pool_liquidity_snapshot_test_Id_uindex
+        unique (Id),
+    constraint pool_liquidity_snapshot_pool_liquidity_Id_fk
+        foreign key (LiquidityPoolId) references pool_liquidity (Id)
+);
+
+create index pool_liquidity_snapshot_EndDate_index
+    on pool_liquidity_snapshot (EndDate);
+
+create index pool_liquidity_snapshot_StartDate_index
+    on pool_liquidity_snapshot (StartDate);
+
+alter table pool_liquidity_snapshot
     add primary key (Id);
 
 create table pool_mining
