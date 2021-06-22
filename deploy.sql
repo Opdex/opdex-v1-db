@@ -338,7 +338,7 @@ create table token
 (
     Id            bigint auto_increment,
     Address       varchar(50)     not null,
-    IsLpt         bit             not null,
+    IsLpt         bit default 0   not null,
     Symbol        varchar(10)     not null,
     Name          varchar(50)     not null,
     Decimals      smallint(2)     not null,
