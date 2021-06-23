@@ -24,21 +24,17 @@ alter table address_allowance
 
 create table address_balance
 (
-    Id              bigint auto_increment,
-    TokenId         bigint          not null,
-    LiquidityPoolId bigint          not null,
-    Owner           varchar(50)     not null,
-    Balance         varchar(78)     not null,
-    CreatedBlock    bigint unsigned not null,
-    ModifiedBlock   bigint unsigned null,
-    constraint address_balance_Owner_LiquidityPoolId_TokenId_uindex
-        unique (Owner, LiquidityPoolId, TokenId),
+    Id            bigint auto_increment,
+    TokenId       bigint          not null,
+    Owner         varchar(50)     not null,
+    Balance       varchar(78)     not null,
+    CreatedBlock  bigint unsigned not null,
+    ModifiedBlock bigint unsigned null,
+    constraint address_balance_Owner_TokenId_uindex
+        unique (Owner, TokenId),
     constraint pool_liquidity_wallet_balance_Id_uindex
         unique (Id)
 );
-
-create index address_balance_Owner_index
-    on address_balance (Owner);
 
 create index address_balance_block_Height_fk
     on address_balance (CreatedBlock);
@@ -298,20 +294,6 @@ create table odx_vault_certificate
 alter table odx_vault_certificate
     add primary key (Id);
 
-create table pool_mining_snapshot
-(
-    Id               bigint auto_increment,
-    MiningPoolId     bigint                      not null,
-    MiningWeight     varchar(78)    default '0'  not null,
-    MiningUsd        decimal(20, 2) default 0.00 null,
-    RemainingRewards varchar(78)    default '0'  null,
-    constraint pool_mining_snapshot_Id_uindex
-        unique (Id)
-);
-
-alter table pool_mining_snapshot
-    add primary key (Id);
-
 create table snapshot_type
 (
     Id           smallint    not null,
@@ -325,19 +307,13 @@ alter table snapshot_type
 
 create table market_snapshot
 (
-    Id               bigint auto_increment,
-    MarketId         bigint                      not null,
-    TransactionCount int            default 0    not null,
-    Liquidity        decimal(20, 2) default 0.00 not null,
-    Volume           decimal(20, 2) default 0.00 not null,
-    StakingWeight    varchar(78)    default '0'  not null,
-    StakingUsd       decimal(20, 2) default 0.00 not null,
-    StakerRewards    decimal(20, 2) default 0.00 not null,
-    ProviderRewards  decimal(20, 2) default 0.00 not null,
-    SnapshotTypeId   smallint                    not null,
-    StartDate        datetime                    not null,
-    EndDate          datetime                    not null,
-    CreatedDate      datetime                    not null,
+    Id             bigint auto_increment,
+    MarketId       bigint   not null,
+    SnapshotTypeId smallint not null,
+    StartDate      datetime not null,
+    EndDate        datetime not null,
+    ModifiedDate   datetime not null,
+    Details        longtext not null,
     constraint market_snapshot_Id_uindex
         unique (Id),
     constraint market_snapshot_market_Id_fk
@@ -346,8 +322,14 @@ create table market_snapshot
         foreign key (SnapshotTypeId) references snapshot_type (Id)
 );
 
+create index market_snapshot_EndDate_index
+    on market_snapshot (EndDate);
+
 create index market_snapshot_MarketId_StartDate_EndDate_index
     on market_snapshot (MarketId, StartDate, EndDate);
+
+create index market_snapshot_StartDate_index
+    on market_snapshot (StartDate);
 
 alter table market_snapshot
     add primary key (Id);
@@ -356,6 +338,7 @@ create table token
 (
     Id            bigint auto_increment,
     Address       varchar(50)     not null,
+    IsLpt         bit default 0   not null,
     Symbol        varchar(10)     not null,
     Name          varchar(50)     not null,
     Decimals      smallint(2)     not null,
@@ -369,14 +352,18 @@ create table token
         unique (Id)
 );
 
+create index token_IsLpt_index
+    on token (IsLpt);
+
 alter table token
     add primary key (Id);
 
 create table pool_liquidity
 (
     Id            bigint auto_increment,
-    TokenId       bigint          not null,
-    MarketId      bigint          null,
+    SrcTokenId    bigint          not null,
+    LpTokenId     bigint          not null,
+    MarketId      bigint          not null,
     Address       varchar(50)     not null,
     CreatedBlock  bigint unsigned not null,
     ModifiedBlock bigint unsigned not null,
@@ -385,11 +372,13 @@ create table pool_liquidity
     constraint pair_Id_uindex
         unique (Id),
     constraint pool_liquidity_MarketId_TokenId_uindex
-        unique (MarketId, TokenId),
+        unique (MarketId, SrcTokenId),
     constraint pool_liquidity_market_Id_fk
         foreign key (MarketId) references market (Id),
-    constraint pool_liquidity_token_Id_fk
-        foreign key (TokenId) references token (Id)
+    constraint pool_liquidity_token_lp_Id_fk
+        foreign key (LpTokenId) references token (Id),
+    constraint pool_liquidity_token_src_Id_fk
+        foreign key (SrcTokenId) references token (Id)
 );
 
 alter table pool_liquidity
@@ -398,30 +387,24 @@ alter table pool_liquidity
 create table pool_liquidity_snapshot
 (
     Id               bigint auto_increment,
-    LiquidityPoolId  bigint                      not null,
-    TransactionCount int            default 0    not null,
-    ReserveCrs       varchar(78)    default '0'  not null,
-    ReserveSrc       varchar(78)    default '0'  not null,
-    ReserveUsd       decimal(20, 2) default 0.00 not null,
-    VolumeCrs        varchar(78)    default '0'  not null,
-    VolumeSrc        varchar(78)    default '0'  not null,
-    VolumeUsd        decimal(20, 2) default 0.00 not null,
-    StakingWeight    varchar(78)    default '0'  not null,
-    StakingUsd       decimal(20, 2) default 0.00 not null,
-    ProviderRewards  decimal(20, 2) default 0.00 not null,
-    StakerRewards    decimal(20, 2) default 0.00 not null,
-    SnapshotTypeId   smallint                    not null,
-    StartDate        datetime                    not null,
-    EndDate          datetime                    not null,
-    constraint pair_snapshot_Id_uindex
+    LiquidityPoolId  bigint   not null,
+    SnapshotTypeId   int      not null,
+    TransactionCount int      not null,
+    StartDate        datetime null,
+    EndDate          datetime null,
+    ModifiedDate     datetime null,
+    Details          longtext null,
+    constraint pool_liquidity_snapshot_test_Id_uindex
         unique (Id),
-    constraint pool_liquidity_snapshot_LiquidityPoolId_StartDate_EndDate_uindex
-        unique (LiquidityPoolId, StartDate, EndDate),
     constraint pool_liquidity_snapshot_pool_liquidity_Id_fk
-        foreign key (LiquidityPoolId) references pool_liquidity (Id),
-    constraint pool_liquidity_snapshot_snapshot_type_Id_fk
-        foreign key (SnapshotTypeId) references snapshot_type (Id)
+        foreign key (LiquidityPoolId) references pool_liquidity (Id)
 );
+
+create index pool_liquidity_snapshot_EndDate_index
+    on pool_liquidity_snapshot (EndDate);
+
+create index pool_liquidity_snapshot_StartDate_index
+    on pool_liquidity_snapshot (StartDate);
 
 alter table pool_liquidity_snapshot
     add primary key (Id);
@@ -452,12 +435,13 @@ alter table pool_mining
 create table token_snapshot
 (
     Id             bigint auto_increment,
-    TokenId        bigint                      not null,
-    MarketId       bigint                      not null,
-    SnapshotTypeId smallint                    not null,
-    Price          decimal(20, 2) default 0.00 not null,
-    StartDate      datetime                    not null,
-    EndDate        datetime                    not null,
+    TokenId        bigint   not null,
+    MarketId       bigint   not null,
+    SnapshotTypeId smallint not null,
+    StartDate      datetime not null,
+    EndDate        datetime not null,
+    ModifiedDate   datetime not null,
+    Details        longtext not null,
     constraint token_snapshot_Id_uindex
         unique (Id),
     constraint token_snapshot_TokenId_StartDate_EndDate_uindex
