@@ -4,23 +4,16 @@ create table address_allowance
 (
     Id              bigint auto_increment,
     TokenId         bigint          not null,
-    LiquidityPoolId bigint          not null,
     Owner           varchar(50)     not null,
     Spender         varchar(50)     not null,
-    Allowance       varchar(78)     null,
+    Allowance       varchar(78)     not null,
     CreatedBlock    bigint unsigned not null,
-    ModifiedBlock   bigint unsigned null,
-    constraint address_allowance_Owner_Spender_LiquidityPoolId_TokenId_uindex
-        unique (Owner, Spender, LiquidityPoolId, TokenId),
-    constraint token_wallet_allowance_Id_uindex
-        unique (Id)
+    ModifiedBlock   bigint unsigned not null,
+    constraint primary key (Id),
+    constraint address_allowance_token_Id_fk foreign key (TokenId) references token (Id),
+    unique address_allowance_TokenId_Owner_Spender_uq (TokenId, Owner, Spender),
+    index address_allowance_ModifiedBlock_ix (ModifiedBlock)
 );
-
-create index address_allowance_block_Height_fk
-    on address_allowance (CreatedBlock);
-
-alter table address_allowance
-    add primary key (Id);
 
 create table address_balance
 (
@@ -30,21 +23,13 @@ create table address_balance
     Owner           varchar(50)     not null,
     Balance         varchar(78)     not null,
     CreatedBlock    bigint unsigned not null,
-    ModifiedBlock   bigint unsigned null,
-    constraint address_balance_Owner_LiquidityPoolId_TokenId_uindex
-        unique (Owner, LiquidityPoolId, TokenId),
-    constraint pool_liquidity_wallet_balance_Id_uindex
-        unique (Id)
+    ModifiedBlock   bigint unsigned not null,
+    constraint primary key (Id),
+    constraint address_balance_token_Id_fk foreign key (TokenId) references token (Id),
+    constraint address_balance_pool_liquidity_Id_fk foreign key (LiquidityPoolId) references pool_liquidity (Id),
+    unique address_balance_TokenId_LiquidityPoolId_Owner_uq (TokenId, LiquidityPoolId, Owner),
+    index address_balance_ModifiedBlock_ix (ModifiedBlock)
 );
-
-create index address_balance_Owner_index
-    on address_balance (Owner);
-
-create index address_balance_block_Height_fk
-    on address_balance (CreatedBlock);
-
-alter table address_balance
-    add primary key (Id);
 
 create table address_mining
 (
@@ -53,21 +38,12 @@ create table address_mining
     Owner         varchar(50)     not null,
     Balance       varchar(78)     null,
     CreatedBlock  bigint unsigned not null,
-    ModifiedBlock bigint unsigned null,
-    constraint address_mining_MiningPoolId_Owner_uindex
-        unique (MiningPoolId, Owner),
-    constraint pool_mining_wallet_balance_Id_uindex
-        unique (Id)
+    ModifiedBlock bigint unsigned not null,
+    constraint primary key (Id),
+    constraint address_mining_pool_mining_Id_fk foreign key (MiningPoolId) references pool_mining (Id),
+    unique address_mining_MiningPoolId_Owner_uq (MiningPoolId, Owner),
+    index address_mining_ModifiedBlock_ix (ModifiedBlock)
 );
-
-create index address_mining_Owner_index
-    on address_mining (Owner);
-
-create index address_mining_block_Height_fk
-    on address_mining (CreatedBlock);
-
-alter table address_mining
-    add primary key (Id);
 
 create table address_staking
 (
@@ -76,21 +52,12 @@ create table address_staking
     Owner           varchar(50)     not null,
     Weight          varchar(78)     not null,
     CreatedBlock    bigint unsigned not null,
-    ModifiedBlock   bigint unsigned null,
-    constraint address_staking_LiquidityPoolId_Owner_uindex
-        unique (LiquidityPoolId, Owner),
-    constraint pool_liquidity_wallet_staking_Id_uindex
-        unique (Id)
+    ModifiedBlock   bigint unsigned not null,
+    constraint primary key (Id),
+    constraint address_staking_pool_liquidity_Id_fk foreign key (LiquidityPoolId) references pool_liquidity (Id),
+    unique address_staking_LiquidityPoolId_Owner_uq (LiquidityPoolId, Owner),
+    index address_staking_ModifiedBlock_ix (ModifiedBlock)
 );
-
-create index address_staking_Owner_index
-    on address_staking (Owner);
-
-create index address_staking_block_Height_fk
-    on address_staking (CreatedBlock);
-
-alter table address_staking
-    add primary key (Id);
 
 create table block
 (
