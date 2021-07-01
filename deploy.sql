@@ -11,7 +11,8 @@ create table address_allowance
     ModifiedBlock   bigint unsigned not null,
     constraint primary key (Id),
     constraint address_allowance_token_Id_fk foreign key (TokenId) references token (Id),
-    unique address_allowance_TokenId_Owner_Spender_uq (TokenId, Owner, Spender),
+    unique address_allowance_Owner_Spender_TokenId_uq (Owner, Spender, TokenId),
+    index address_allowance_Spender_ix (Spender),
     index address_allowance_ModifiedBlock_ix (ModifiedBlock)
 );
 
@@ -25,7 +26,7 @@ create table address_balance
     ModifiedBlock   bigint unsigned not null,
     constraint primary key (Id),
     constraint address_balance_token_Id_fk foreign key (TokenId) references token (Id),
-    unique address_balance_TokenId_Owner_uq (TokenId, Owner),
+    unique address_balance_Owner_TokenId_uq (Owner, TokenId),
     index address_balance_ModifiedBlock_ix (ModifiedBlock)
 );
 
@@ -39,7 +40,7 @@ create table address_mining
     ModifiedBlock bigint unsigned not null,
     constraint primary key (Id),
     constraint address_mining_pool_mining_Id_fk foreign key (MiningPoolId) references pool_mining (Id),
-    unique address_mining_MiningPoolId_Owner_uq (MiningPoolId, Owner),
+    unique address_mining_Owner_MiningPoolId_uq (Owner, MiningPoolId),
     index address_mining_ModifiedBlock_ix (ModifiedBlock)
 );
 
@@ -53,7 +54,7 @@ create table address_staking
     ModifiedBlock   bigint unsigned not null,
     constraint primary key (Id),
     constraint address_staking_pool_liquidity_Id_fk foreign key (LiquidityPoolId) references pool_liquidity (Id),
-    unique address_staking_LiquidityPoolId_Owner_uq (LiquidityPoolId, Owner),
+    unique address_staking_Owner_LiquidityPoolId_uq (Owner, LiquidityPoolId),
     index address_staking_ModifiedBlock_ix (ModifiedBlock)
 );
 
