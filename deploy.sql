@@ -230,23 +230,22 @@ create table odx_mining_governance_nomination
 create index odx_mining_governance_nomination_IsNominated_index
     on odx_mining_governance_nomination (IsNominated);
 
-create table odx_vault
+create table vault
 (
-    Id            bigint auto_increment,
-    TokenId       bigint          not null,
-    Address       varchar(70)     not null,
-    Owner         varchar(50)     not null,
-    Genesis       bigint unsigned not null,
-    CreatedBlock  bigint unsigned not null,
-    ModifiedBlock bigint unsigned not null,
-    constraint vault_Id_uindex
-        unique (Id)
+    Id                  bigint auto_increment,
+    TokenId             bigint          not null,
+    Address             varchar(50)     not null,
+    Owner               varchar(50)     not null,
+    Genesis             bigint unsigned not null,
+    UnassignedSupply    varchar(78)     not null,
+    CreatedBlock        bigint unsigned not null,
+    ModifiedBlock       bigint unsigned not null,
+    primary key (Id),
+    constraint vault_token_Id_fk foreign key (TokenId) references token (Id),
+    unique vault_Address_uq (Address)
 );
 
-alter table odx_vault
-    add primary key (Id);
-
-create table odx_vault_certificate
+create table vault_certificate
 (
     Id            bigint auto_increment,
     VaultId       bigint          not null,
@@ -257,12 +256,10 @@ create table odx_vault_certificate
     Revoked       bit             not null,
     CreatedBlock  bigint unsigned not null,
     ModifiedBlock bigint unsigned not null,
-    constraint vault_certificate_Id_uindex
-        unique (Id)
+    primary key (Id),
+    constraint vault_certificate_vault_Id_fk foreign key (VaultId) references vault (Id),
+    index vault_certificate_Owner_ix (Owner)
 );
-
-alter table odx_vault_certificate
-    add primary key (Id);
 
 create table snapshot_type
 (
