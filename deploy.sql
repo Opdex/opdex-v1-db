@@ -121,6 +121,7 @@ create table governance
     Address             varchar(50)              not null,
     TokenId             bigint                   not null,
     NominationPeriodEnd bigint unsigned          not null,
+    MiningDuration      bigint unsigned          not null,
     MiningPoolsFunded   int unsigned default 0   not null,
     MiningPoolReward    varchar(78)  default '0' not null,
     CreatedBlock        bigint unsigned          not null,
