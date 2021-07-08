@@ -115,43 +115,6 @@ create table odx_distribution
     constraint primary key (Id)
 );
 
-create table governance
-(
-    Id                  bigint auto_increment,
-    Address             varchar(50)              not null,
-    TokenId             bigint                   not null,
-    NominationPeriodEnd bigint unsigned          not null,
-    MiningDuration      bigint unsigned          not null,
-    MiningPoolsFunded   int unsigned default 0   not null,
-    MiningPoolReward    varchar(78)  default '0' not null,
-    CreatedBlock        bigint unsigned          not null,
-    ModifiedBlock       bigint unsigned          not null,
-    constraint primary key (Id),
-    constraint governance_Address_uindex
-        unique (Address),
-    constraint governance_TokenId_uindex
-        unique (TokenId),
-    constraint governance_token_Id_fk
-        foreign key (TokenId) references token (Id)
-);
-
-create table governance_nomination
-(
-    Id              bigint auto_increment,
-    LiquidityPoolId bigint          not null,
-    MiningPoolId    bigint          not null,
-    IsNominated     bit             null,
-    Weight          varchar(78)     not null,
-    CreatedBlock    bigint unsigned not null,
-    ModifiedBlock   bigint unsigned not null,
-    constraint primary key (Id),
-    constraint governance_nomination_LiquidityPoolId_MiningPoolId_uindex
-        unique (LiquidityPoolId, MiningPoolId)
-);
-
-create index governance_nomination_IsNominated_index
-    on governance_nomination (IsNominated);
-
 create table snapshot_type
 (
     Id           smallint    not null,
@@ -397,6 +360,43 @@ create index transaction_event_transaction_Id_fk
 
 create index transaction_log_Contract_index
     on transaction_log (Contract);
+
+create table governance
+(
+    Id                  bigint auto_increment,
+    Address             varchar(50)              not null,
+    TokenId             bigint                   not null,
+    NominationPeriodEnd bigint unsigned          not null,
+    MiningDuration      bigint unsigned          not null,
+    MiningPoolsFunded   int unsigned default 0   not null,
+    MiningPoolReward    varchar(78)  default '0' not null,
+    CreatedBlock        bigint unsigned          not null,
+    ModifiedBlock       bigint unsigned          not null,
+    constraint primary key (Id),
+    constraint governance_Address_uindex
+        unique (Address),
+    constraint governance_TokenId_uindex
+        unique (TokenId),
+    constraint governance_token_Id_fk
+        foreign key (TokenId) references token (Id)
+);
+
+create table governance_nomination
+(
+    Id              bigint auto_increment,
+    LiquidityPoolId bigint          not null,
+    MiningPoolId    bigint          not null,
+    IsNominated     bit             null,
+    Weight          varchar(78)     not null,
+    CreatedBlock    bigint unsigned not null,
+    ModifiedBlock   bigint unsigned not null,
+    constraint primary key (Id),
+    constraint governance_nomination_LiquidityPoolId_MiningPoolId_uindex
+        unique (LiquidityPoolId, MiningPoolId)
+);
+
+create index governance_nomination_IsNominated_index
+    on governance_nomination (IsNominated);
     
 create table vault
 (
