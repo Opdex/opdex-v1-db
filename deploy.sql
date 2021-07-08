@@ -128,7 +128,11 @@ create table governance
     ModifiedBlock       bigint unsigned          not null,
     constraint primary key (Id),
     constraint governance_Address_uindex
-        unique (Address)
+        unique (Address),
+    constraint governance_TokenId_uindex
+        unique (TokenId),
+    constraint governance_token_Id_fk
+        foreign key (TokenId) references token (Id)
 );
 
 create table governance_nomination
