@@ -410,7 +410,8 @@ create table vault
     ModifiedBlock       bigint unsigned not null,
     primary key (Id),
     constraint vault_token_Id_fk foreign key (TokenId) references token (Id),
-    unique vault_Address_uq (Address)
+    unique vault_Address_uq (Address),
+    unique vault_TokenId_uq (TokenId)
 );
 
 create table vault_certificate
