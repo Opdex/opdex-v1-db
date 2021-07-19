@@ -21,5 +21,5 @@ jobs:
               SqlPassword: '$(sqlpassword)'
               TaskNameSelector: 'SqlTaskFile'
               DatabaseName: 'platform'
-              SqlFile: $(Build.SourcesDirectory)/deploy.sql
+              SqlFile: $(Build.ArtifactStagingDirectory)/deploy.sql
               IpDetectionMethod: 'AutoDetect'
