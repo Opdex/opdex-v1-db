@@ -1,6 +1,6 @@
 name: Opdex-Database
 trigger:
-- main
+- master
 
 pool:
   vmImage: ubuntu-latest
