@@ -5,62 +5,46 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-steps:
-- checkout: none 
+variables:
+  location: 'Central US'
+  azureSubscription: 'sub-opdex-dev'
+  ARTIFACT_NAME: platform-db
+  artifactName: ReleaseArtifact
+  releaseTemplate: 'azure-pipelines.release.yml'
 
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-- task: AzureMysqlDeployment@1
-  displayName: 'Execute Azure MySQL : InlineSqlTask'
-  inputs:
-    azureSubscription: $(azureSubscription) 
-    ServerName: 'mdb-opdex-dev.mariadb.database.azure.com'
-    DatabaseName: platform
-    SqlUsername: 'opdex@mdb-opdex-dev'
-    SqlPassword: '$(sqlpassword)'
-    TaskNameSelector: InlineSqlTask
-    SqlInline: SELECT * FROM schema1.table1;
+stages:
+- stage: CI
+  displayName: 'Continuous Integration'
+  jobs:
+  - job: Build
+    steps:
+    - task: PublishBuildArtifacts@1 
+      displayName: 'Publish artifact in pipeline' 
+      inputs: 
+        PathtoPublish: '$(Build.SourcesDirectory)/deploy.sql'
+        ArtifactName: 'Database Script'  
+        publishLocation: 'Container' 
 
-# variables:
-#   location: 'Central US'
-#   azureSubscription: 'sub-opdex-dev'
-#   ARTIFACT_NAME: platform-db
-#   artifactName: ReleaseArtifact
-#   releaseTemplate: 'azure-pipelines.release.yml'
+- stage: DEV
+  displayName: 'Release to devnet (Azure)'
+  dependsOn: CI
+  jobs:
+  - template: ${{ variables.releaseTemplate }}
+    parameters:
+      environment: 'dev'
 
-# stages:
-# - stage: CI
-#   displayName: 'Continuous Integration'
-#   jobs:
-#   - job: Build
-#     steps:
-#     - task: PublishBuildArtifacts@1 
-#       displayName: 'Publish artifact in pipeline' 
-#       inputs: 
-#         PathtoPublish: '$(Build.SourcesDirectory)/deploy.sql'
-#         ArtifactName: 'Database Script'  
-#         publishLocation: 'Container' 
+- stage: TEST
+  displayName: 'Release to testnet (Azure)'
+  dependsOn: DEV
+  jobs:
+  - template: ${{ variables.releaseTemplate }}
+    parameters:
+      environment: 'test'
 
-# - stage: DEV
-#   displayName: 'Release to devnet (Azure)'
-#   dependsOn: CI
-#   jobs:
-#   - template: ${{ variables.releaseTemplate }}
-#     parameters:
-#       environment: 'dev'
-
-# - stage: TEST
-#   displayName: 'Release to testnet (Azure)'
-#   dependsOn: DEV
-#   jobs:
-#   - template: ${{ variables.releaseTemplate }}
-#     parameters:
-#       environment: 'test'
-
-# - stage: MAIN
-#   displayName: 'Release to mainnet (Azure)'
-#   dependsOn: TEST
-#   jobs:
-#   - template: ${{ variables.releaseTemplate }}
-#     parameters:
-#       environment: 'main'
+- stage: MAIN
+  displayName: 'Release to mainnet (Azure)'
+  dependsOn: TEST
+  jobs:
+  - template: ${{ variables.releaseTemplate }}
+    parameters:
+      environment: 'main'
