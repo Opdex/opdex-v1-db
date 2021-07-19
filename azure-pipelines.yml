@@ -1,0 +1,50 @@
+name: Opdex-Database
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  location: 'Central US'
+  azureSubscription: 'sub-opdex-dev'
+  ARTIFACT_NAME: platform-db
+  artifactName: ReleaseArtifact
+  releaseTemplate: 'azure-pipelines.release.yml'
+
+stages:
+- stage: CI
+  displayName: 'Continuous Integration'
+  jobs:
+  - job: Build
+    steps:
+    - task: PublishBuildArtifacts@1 
+      displayName: 'Publish artifact in pipeline' 
+      inputs: 
+        PathtoPublish: '$(Build.SourcesDirectory)/deploy.sql'
+        ArtifactName: 'Database Script'  
+        publishLocation: 'Container' 
+
+- stage: DEV
+  displayName: 'Release to devnet (Azure)'
+  dependsOn: CI
+  jobs:
+  - template: ${{ variables.releaseTemplate }}
+    parameters:
+      environment: 'dev'
+
+- stage: TEST
+  displayName: 'Release to testnet (Azure)'
+  dependsOn: DEV
+  jobs:
+  - template: ${{ variables.releaseTemplate }}
+    parameters:
+      environment: 'test'
+
+- stage: MAIN
+  displayName: 'Release to mainnet (Azure)'
+  dependsOn: TEST
+  jobs:
+  - template: ${{ variables.releaseTemplate }}
+    parameters:
+      environment: 'main'

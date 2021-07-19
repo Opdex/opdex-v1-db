@@ -1,0 +1,25 @@
+parameters:
+- name: environment
+  type: string
+
+jobs:
+  - deployment: ${{ parameters.environment }}
+    displayName: 'Deploy Resources'
+    variables:
+      - group: ${{ parameters.environment }} # points to variable group in Azure DevOps
+    environment: ${{ parameters.environment }} # points to environments in Azure DevOps
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+          - task: AzureMysqlDeployment@1
+            inputs:
+              azureSubscription: $(azureSubscription) 
+              ServerName: 'mdb-opdex-${{ parameters.environment }}.mariadb.database.azure.com'
+              SqlUsername: 'opdex@mdb-opdex-${{ parameters.environment }}'
+              SqlPassword: '$(sqlpassword)'
+              TaskNameSelector: 'SqlTaskFile'
+              DatabaseName: 'platform'
+              SqlFile: $(Build.SourcesDirectory)/deploy.sql
+              IpDetectionMethod: 'AutoDetect'
