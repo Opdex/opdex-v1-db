@@ -12,12 +12,14 @@ jobs:
       runOnce:
         deploy:
           steps:
-          - checkout: self
+          # - checkout: self # Check if we need to perform a checkout, we download the artifact.
           - task: AzureMysqlDeployment@1
             inputs:
               azureSubscription: $(azureSubscription) 
-              ServerName: 'mdb-opdex-${{ parameters.environment }}.mariadb.database.azure.com'
-              SqlUsername: 'opdex@mdb-opdex-${{ parameters.environment }}'
+              #ServerName: 'mdb-opdex-${{ parameters.environment }}.mariadb.database.azure.com'
+              ServerName: 'mdb-opdex-dev.mariadb.database.azure.com'
+              # SqlUsername: 'opdex@mdb-opdex-${{ parameters.environment }}'
+              SqlUsername: 'opdex@mdb-opdex-dev'
               SqlPassword: '$(sqlpassword)'
               TaskNameSelector: 'SqlTaskFile'
               DatabaseName: 'platform'
