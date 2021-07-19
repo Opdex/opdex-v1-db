@@ -9,8 +9,8 @@ steps:
 - task: AzureMysqlDeployment@1
   inputs:
     azureSubscription: 'sub-opdex-dev'
-    ServerName: 'mdb-opdex-dev.mariadb.database.azure.com'
-    SqlUsername: 'opdex@mdb-opdex-dev'
+    ServerName: 'sql-opdex-dev.mysql.database.azure.com'
+    SqlUsername: 'opdex@sql-opdex-dev'
     SqlPassword: 'xpMFC7NWPQIJbdS0NCAy'
     TaskNameSelector: 'InlineSqlTask'
     SqlInline: |
