@@ -8,7 +8,7 @@ pool:
 steps:
 - task: AzureMysqlDeployment@1
   inputs:
-    azureSubscription: $(azureSubscription)
+    azureSubscription: 'sub-opdex-dev'
     ServerName: 'mdb-opdex-dev.mariadb.database.azure.com'
     SqlUsername: 'opdex@mdb-opdex-dev'
     SqlPassword: 'xpMFC7NWPQIJbdS0NCAy'
