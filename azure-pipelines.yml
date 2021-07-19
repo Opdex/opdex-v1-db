@@ -22,7 +22,7 @@ stages:
       displayName: 'Publish artifact in pipeline' 
       inputs: 
         PathtoPublish: '$(Build.SourcesDirectory)/deploy.sql'
-        #ArtifactName: 'Database Script'  
+        ArtifactName: 'database'
         publishLocation: 'Container' 
 
 - stage: DEV
