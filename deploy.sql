@@ -7,7 +7,7 @@ DELIMITER //
 
 CREATE PROCEDURE init_db ()
  BEGIN
-  
+
     create table if not exists token
     (
         Id            bigint auto_increment,
@@ -153,7 +153,7 @@ CREATE PROCEDURE init_db ()
         StartDate      datetime not null,
         EndDate        datetime not null,
         ModifiedDate   datetime not null,
-        Details        longtext not null,
+        Details        json not null,
         constraint primary key (Id),
         constraint market_snapshot_market_Id_fk
             foreign key (MarketId) references market (Id),
@@ -195,7 +195,7 @@ CREATE PROCEDURE init_db ()
         StartDate        datetime null,
         EndDate          datetime null,
         ModifiedDate     datetime null,
-        Details          longtext null,
+        Details          json null,
         constraint primary key (Id),
         constraint pool_liquidity_snapshot_pool_liquidity_Id_fk
             foreign key (LiquidityPoolId) references pool_liquidity (Id),
@@ -231,7 +231,7 @@ CREATE PROCEDURE init_db ()
         StartDate      datetime not null,
         EndDate        datetime not null,
         ModifiedDate   datetime not null,
-        Details        longtext not null,
+        Details        json not null,
         constraint primary key (Id),
         constraint token_snapshot_TokenId_StartDate_EndDate_uindex
             unique (TokenId, StartDate, EndDate),
@@ -332,7 +332,7 @@ CREATE PROCEDURE init_db ()
         LogTypeId     smallint                     not null,
         SortOrder     smallint(2)                  not null,
         Contract      varchar(50)                  not null,
-        Details       longtext collate utf8mb4_bin null,
+        Details       json                             null,
         constraint primary key (Id),
         constraint transaction_log_transaction_log_type_Id_fk
             foreign key (LogTypeId) references transaction_log_type (Id),
@@ -468,6 +468,10 @@ CREATE PROCEDURE init_db ()
  END;
 //
 
-DROP PROCEDURE init_db
+CALL init_db();
+//
+
+DROP PROCEDURE init_db;
+//
 
 DELIMITER ;
