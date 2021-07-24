@@ -28,6 +28,7 @@ stages:
 - stage: DEV
   displayName: 'Release to devnet (Azure)'
   dependsOn: CI
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master')) # prevent running deployment from feature branch
   jobs:
   - template: ${{ variables.releaseTemplate }}
     parameters:
@@ -36,6 +37,7 @@ stages:
 - stage: TEST
   displayName: 'Release to testnet (Azure)'
   dependsOn: DEV
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master')) # prevent running deployment from feature branch
   jobs:
   - template: ${{ variables.releaseTemplate }}
     parameters:
@@ -44,6 +46,7 @@ stages:
 - stage: MAIN
   displayName: 'Release to mainnet (Azure)'
   dependsOn: TEST
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master')) # prevent running deployment from feature branch
   jobs:
   - template: ${{ variables.releaseTemplate }}
     parameters:
