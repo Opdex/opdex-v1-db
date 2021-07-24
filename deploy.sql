@@ -191,7 +191,7 @@ CREATE PROCEDURE init_db ()
         LiquidityPoolId bigint,
         StakingTokenId  bigint  not null,
         constraint primary key (LiquidityPoolId),
-        constraint pool_staking_LiquidityPoolId_fk foreign key (LiquidityPoolId) references pool_liquidity (Id)
+        constraint pool_staking_LiquidityPoolId_pool_liquidity_Id_fk foreign key (LiquidityPoolId) references pool_liquidity (Id)
     );
 
     create table if not exists pool_liquidity_snapshot
