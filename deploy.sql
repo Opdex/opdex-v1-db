@@ -185,6 +185,14 @@ CREATE PROCEDURE init_db ()
         constraint pool_liquidity_token_src_Id_fk
             foreign key (SrcTokenId) references token (Id)
     );
+    
+    create table if not exists pool_staking
+    (
+        LiquidityPoolId bigint,
+        StakingTokenId  bigint  not null,
+        constraint primary key (LiquidityPoolId),
+        constraint pool_staking_LiquidityPoolId_fk foreign key (LiquidityPoolId) references pool_liquidity (Id)
+    );
 
     create table if not exists pool_liquidity_snapshot
     (
@@ -295,7 +303,7 @@ CREATE PROCEDURE init_db ()
         CreatedBlock    bigint unsigned not null,
         ModifiedBlock   bigint unsigned not null,
         constraint primary key (Id),
-        constraint address_staking_pool_liquidity_Id_fk foreign key (LiquidityPoolId) references pool_liquidity (Id),
+        constraint address_staking_LiquidityPoolId_pool_staking_LiquidityPoolId_fk foreign key (LiquidityPoolId) references pool_staking (LiquidityPoolId),
         unique address_staking_Owner_LiquidityPoolId_uq (Owner, LiquidityPoolId),
         index address_staking_ModifiedBlock_ix (ModifiedBlock)
     );
