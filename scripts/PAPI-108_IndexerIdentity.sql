@@ -1,4 +1,5 @@
--- Creates the database for use with Opdex Platform API
+-- Creates the InstanceId column of the index_lock table used to determine who is responsible for 
+-- locking and unlocking the table.
 DELIMITER //
 
 CREATE PROCEDURE InsertIndexLockIdentity ()
