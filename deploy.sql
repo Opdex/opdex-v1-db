@@ -1,8 +1,4 @@
 -- Creates the database for use with Opdex Platform API
-
-
-
-
 DELIMITER //
 
 CREATE PROCEDURE init_db ()
@@ -40,9 +36,10 @@ CREATE PROCEDURE init_db ()
 
     create table if not exists index_lock
     (
-        Available    bit      not null,
-        Locked       bit      not null,
-        ModifiedDate datetime not null
+        Available    bit            not null,
+        Locked       bit            not null,
+        InstanceId   varchar(40)    null,
+        ModifiedDate datetime       not null
     );
 
     create table if not exists market_deployer
