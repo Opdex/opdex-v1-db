@@ -9,7 +9,7 @@ CREATE PROCEDURE init_db ()
         Id            bigint auto_increment,
         Address       varchar(50)     not null,
         IsLpt         bit default 0   not null,
-        Symbol        varchar(10)     not null,
+        Symbol        varchar(20)     not null,
         Name          varchar(50)     not null,
         Decimals      smallint(2)     not null,
         Sats          bigint          not null,
@@ -74,8 +74,6 @@ CREATE PROCEDURE init_db ()
         constraint market_deployer_Id_fk
             foreign key (DeployerId) references market_deployer (Id),
         index market_Owner_ix (Owner),
-        constraint market_staking_token_Id_fk
-            foreign key (StakingTokenId) references token (Id),
         index market_staking_Token_Id_ix (StakingTokenId)
     );
 
@@ -237,22 +235,6 @@ CREATE PROCEDURE init_db ()
         constraint token_snapshot_token_Id_fk
             foreign key (TokenId) references token (Id),
         index token_snapshot_TokenId_ix (TokenId)
-    );
-
-    create table if not exists address_allowance
-    (
-        Id              bigint auto_increment,
-        TokenId         bigint          not null,
-        Owner           varchar(50)     not null,
-        Spender         varchar(50)     not null,
-        Allowance       varchar(78)     not null,
-        CreatedBlock    bigint unsigned not null,
-        ModifiedBlock   bigint unsigned not null,
-        constraint primary key (Id),
-        constraint address_allowance_token_Id_fk foreign key (TokenId) references token (Id),
-        unique address_allowance_Owner_Spender_TokenId_uq (Owner, Spender, TokenId),
-        index address_allowance_Spender_ix (Spender),
-        index address_allowance_ModifiedBlock_ix (ModifiedBlock)
     );
 
     create table if not exists address_balance
@@ -423,29 +405,33 @@ CREATE PROCEDURE init_db ()
     insert ignore into transaction_log_type(Id, LogType)
     values
     (1, 'CreateMarketLog'),
-    (2, 'ChangeDeployerOwnerLog'),
-    (3, 'CreateLiquidityPoolLog'),
-    (4, 'ChangeMarketOwnerLog'),
-    (5, 'ChangeMarketPermissionLog'),
-    (6, 'MintLog'),
-    (7, 'BurnLog'),
-    (8, 'SwapLog'),
-    (9, 'ReservesLog'),
-    (10, 'ApprovalLog'),
-    (11, 'TransferLog'),
-    (12, 'ChangeMarketLog'),
-    (13, 'StakeLog'),
-    (14, 'CollectStakingRewardsLog'),
-    (15, 'RewardMiningPoolLog'),
-    (16, 'NominationLog'),
-    (17, 'MineLog'),
-    (18, 'CollectMiningRewardsLog'),
-    (19, 'EnableMiningLog'),
-    (20, 'DistributionLog'),
-    (21, 'CreateVaultCertificateLog'),
-    (22, 'RevokeVaultCertificateLog'),
-    (23, 'RedeemVaultCertificateLog'),
-    (24, 'ChangeVaultOwnerLog');
+    (2, 'SetPendingDeployerOwnershipLog'),
+    (3, 'ClaimPendingDeployerOwnershipLog'),
+    (4, 'CreateLiquidityPoolLog'),
+    (5, 'SetPendingMarketOwnershipLog'),
+    (6, 'ClaimPendingMarketOwnershipLog'),
+    (7, 'ChangeMarketPermissionLog'),
+    (8, 'MintLog'),
+    (9, 'BurnLog'),
+    (10, 'SwapLog'),
+    (11, 'ReservesLog'),
+    (12, 'ApprovalLog'),
+    (13, 'TransferLog'),
+    (14, 'StartStakingLog'),
+    (15, 'StopStakingLog'),
+    (16, 'CollectStakingRewardsLog'),
+    (17, 'RewardMiningPoolLog'),
+    (18, 'NominationLog'),
+    (19, 'StartMiningLog'),
+    (20, 'StopMiningLog'),
+    (21, 'CollectMiningRewardsLog'),
+    (22, 'EnableMiningLog'),
+    (23, 'DistributionLog'),
+    (24, 'CreateVaultCertificateLog'),
+    (25, 'RevokeVaultCertificateLog'),
+    (26, 'RedeemVaultCertificateLog'),
+    (27, 'SetPendingVaultOwnershipLog'),
+    (28, 'ClaimPendingVaultOwnershipLog');
 
     insert ignore into snapshot_type
     values
