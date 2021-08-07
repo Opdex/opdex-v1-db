@@ -401,7 +401,7 @@ CREATE PROCEDURE init_db ()
     insert ignore into token(Id, Address, Symbol, Name, Decimals, Sats, TotalSupply, CreatedBlock, ModifiedBlock)
     values(1, 'CRS', 'CRS', 'Cirrus', 8, 100000000, '13000000000000000', 1, 1);
 
-    insert ignore into index_lock(Available, Locked, ModifiedDate)
+    insert ignore into index_lock(Id, Available, Locked, ModifiedDate)
     values (1, 0, 0, '0001-01-01 00:00:00');
 
     insert ignore into transaction_log_type(Id, LogType)
