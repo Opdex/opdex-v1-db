@@ -36,10 +36,12 @@ CREATE PROCEDURE init_db ()
 
     create table if not exists index_lock
     (
+        Id           bigint,
         Available    bit            not null,
         Locked       bit            not null,
         InstanceId   varchar(40)    null,
-        ModifiedDate datetime       not null
+        ModifiedDate datetime       not null,
+        constraint primary key (Id)
     );
 
     create table if not exists market_deployer
@@ -400,7 +402,7 @@ CREATE PROCEDURE init_db ()
     values(1, 'CRS', 'CRS', 'Cirrus', 8, 100000000, '13000000000000000', 1, 1);
 
     insert ignore into index_lock(Available, Locked, ModifiedDate)
-    values (0, 0, '2021-07-20 23:59:59');
+    values (1, 0, 0, '0001-01-01 00:00:00');
 
     insert ignore into transaction_log_type(Id, LogType)
     values
