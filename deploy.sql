@@ -215,8 +215,8 @@ CREATE PROCEDURE init_db ()
         constraint pool_liquidity_summary_pool_liquidity_Id_fk
             foreign key (LiquidityPoolId) references pool_liquidity (Id),
         index pool_liquidity_summary_LiquidityPoolId_ix (LiquidityPoolId),
-        index pool_liquidity_summary_Liquidity_ix (Liquidity),
-        index pool_liquidity_summary_Volume_ix (Volume),
+        index pool_liquidity_summary_LiquidityUsd_ix (LiquidityUsd),
+        index pool_liquidity_summary_VolumeUsd_ix (VolumeUsd),
         index pool_liquidity_summary_StakingWeight_ix (StakingWeight),
         index pool_liquidity_summary_LockedCrs_ix (LockedCrs)
     );
