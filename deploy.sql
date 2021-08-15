@@ -200,6 +200,27 @@ CREATE PROCEDURE init_db ()
         index pool_liquidity_snapshot_StartDate_ix (StartDate)
     );
 
+    create table if not exists pool_liquidity_summary
+    (
+        Id               bigint             auto_increment,
+        LiquidityPoolId  bigint             not null,
+        Liquidity        decimal(30, 8)     not null,
+        Volume           decimal(30, 8)     not null,
+        StakingWeight    bigint unsigned    not null,
+        LockedCrs        bigint unsigned    not null,
+        LockedSrc        varchar(78)        not null,
+        CreatedBlock     bigint unsigned    not null,
+        ModifiedBlock    bigint unsigned    not null,
+        constraint primary key (Id),
+        constraint pool_liquidity_summary_pool_liquidity_Id_fk
+            foreign key (LiquidityPoolId) references pool_liquidity (Id),
+        index pool_liquidity_summary_LiquidityPoolId_ix (LiquidityPoolId),
+        index pool_liquidity_summary_Liquidity_ix (Liquidity),
+        index pool_liquidity_summary_Volume_ix (Volume),
+        index pool_liquidity_summary_StakingWeight_ix (StakingWeight),
+        index pool_liquidity_summary_LockedCrs_ix (LockedCrs)
+    );
+
     create table if not exists pool_mining
     (
         Id                   bigint auto_increment,
