@@ -204,8 +204,8 @@ CREATE PROCEDURE init_db ()
     (
         Id               bigint             auto_increment,
         LiquidityPoolId  bigint             not null,
-        Liquidity        decimal(30, 8)     not null,
-        Volume           decimal(30, 8)     not null,
+        LiquidityUsd     decimal(30, 8)     not null,
+        VolumeUsd        decimal(30, 8)     not null,
         StakingWeight    bigint unsigned    not null,
         LockedCrs        bigint unsigned    not null,
         LockedSrc        varchar(78)        not null,
