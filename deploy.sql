@@ -1,477 +1,545 @@
+USE Local_Opdex;
+
 -- Creates the database for use with Opdex Platform API
 DELIMITER //
 
 CREATE PROCEDURE init_db ()
- BEGIN
+    BEGIN
+        CREATE TABLE IF NOT EXISTS token
+        (
+            Id            BIGINT AUTO_INCREMENT,
+            Address       VARCHAR(50)     NOT NULL,
+            IsLpt         BIT DEFAULT 0   NOT NULL,
+            Symbol        VARCHAR(20)     NOT NULL,
+            Name          VARCHAR(50)     NOT NULL,
+            Decimals      SMALLINT        NOT NULL,
+            Sats          BIGINT          NOT NULL,
+            TotalSupply   VARCHAR(78)     NOT NULL,
+            CreatedBlock  BIGINT UNSIGNED NOT NULL,
+            ModifiedBlock BIGINT UNSIGNED NOT NULL,
+            PRIMARY KEY (Id),
+            UNIQUE token_address_uq (Address),
+            INDEX token_symbol_ix (Symbol),
+            INDEX token_name_ix (Name),
+            INDEX token_is_lpt_ix (IsLpt),
+            FOREIGN KEY token_created_block_block_height_fk (CreatedBlock)
+                REFERENCES block (Height),
+            FOREIGN KEY token_modified_block_block_height_fk (ModifiedBlock)
+                REFERENCES block (Height)
+        ) ENGINE=INNODB;
 
-    create table if not exists token
-    (
-        Id            bigint auto_increment,
-        Address       varchar(50)     not null,
-        IsLpt         bit default 0   not null,
-        Symbol        varchar(20)     not null,
-        Name          varchar(50)     not null,
-        Decimals      smallint(2)     not null,
-        Sats          bigint          not null,
-        TotalSupply   varchar(78)     not null,
-        CreatedBlock  bigint unsigned not null,
-        ModifiedBlock bigint unsigned not null,
-        constraint primary key (Id),
-        constraint token_Address_uindex
-            unique (Address),
-        index token_IsLpt_ix (IsLpt)
-    );
+        CREATE TABLE IF NOT EXISTS block
+        (
+            Height     BIGINT UNSIGNED NOT NULL,
+            Hash       VARCHAR(64)     NOT NULL,
+            Time       DATETIME        NOT NULL,
+            MedianTime DATETIME        NOT NULL,
+            PRIMARY KEY (Height),
+            UNIQUE block_hash_uq (Hash),
+            INDEX block_median_time_ix (MedianTime)
+        ) ENGINE=INNODB;
 
-    create table if not exists block
-    (
-        Height     bigint unsigned not null,
-        Hash       varchar(64)     not null,
-        Time       datetime        not null,
-        MedianTime datetime        not null,
-        constraint primary key (Height),
-        constraint block_Hash_uindex
-            unique (Hash),
-        index block_MedianTime_index (MedianTime)
-    );
+        CREATE TABLE IF NOT EXISTS index_lock
+        (
+            Id           BIGINT,
+            Available    BIT            NOT NULL,
+            Locked       BIT            NOT NULL,
+            InstanceId   VARCHAR(40)    NULL,
+            ModifiedDate DATETIME       NOT NULL,
+            PRIMARY KEY (Id)
+        ) ENGINE=INNODB;
 
-    create table if not exists index_lock
-    (
-        Id           bigint,
-        Available    bit            not null,
-        Locked       bit            not null,
-        InstanceId   varchar(40)    null,
-        ModifiedDate datetime       not null,
-        constraint primary key (Id)
-    );
+        CREATE TABLE IF NOT EXISTS market_deployer
+        (
+            Id            BIGINT AUTO_INCREMENT,
+            Address       VARCHAR(50)     NOT NULL,
+            Owner         VARCHAR(50)     NOT NULL,
+            IsActive      BIT             NOT NULL,
+            CreatedBlock  BIGINT UNSIGNED NOT NULL,
+            ModifiedBlock BIGINT UNSIGNED NOT NULL,
+            PRIMARY KEY (Id),
+            UNIQUE deployer_address_uq (Address),
+            INDEX deployer_is_active_ix(IsActive),
+            FOREIGN KEY market_deployer_created_block_block_height_fk (CreatedBlock)
+                REFERENCES block (Height),
+            FOREIGN KEY market_deployer_modified_block_block_height_fk (ModifiedBlock)
+                REFERENCES block (Height)
+        ) ENGINE=INNODB;
 
-    create table if not exists market_deployer
-    (
-        Id            bigint auto_increment,
-        Address       varchar(50)     not null,
-        Owner         varchar(50)     not null,
-        CreatedBlock  bigint unsigned not null,
-        ModifiedBlock bigint unsigned not null,
-        constraint primary key (Id),
-        constraint deployer_Address_uindex
-            unique (Address)
-    );
+        CREATE TABLE IF NOT EXISTS market
+        (
+            Id               BIGINT AUTO_INCREMENT,
+            Address          VARCHAR(50)     NOT NULL,
+            DeployerId       BIGINT          NOT NULL,
+            StakingTokenId   BIGINT          NULL,
+            Owner            VARCHAR(50)     NOT NULL,
+            AuthPoolCreators BIT             NOT NULL,
+            AuthTraders      BIT             NOT NULL,
+            AuthProviders    BIT             NOT NULL,
+            TransactionFee   SMALLINT        NOT NULL,
+            MarketFeeEnabled BIT             NOT NULL,
+            CreatedBlock     BIGINT UNSIGNED NOT NULL,
+            ModifiedBlock    BIGINT UNSIGNED NOT NULL,
+            PRIMARY KEY (Id),
+            UNIQUE market_address_uq (Address),
+            INDEX market_staking_token_id_ix (StakingTokenId),
+            FOREIGN KEY market_deployer_id_market_deployer_id_fk (DeployerId)
+                REFERENCES market_deployer (Id),
+            FOREIGN KEY market_created_block_block_height_fk (CreatedBlock)
+                REFERENCES block (Height),
+            FOREIGN KEY market_modified_block_block_height_fk (ModifiedBlock)
+                REFERENCES block (Height)
+        ) ENGINE=INNODB;
 
-    create table if not exists market
-    (
-        Id               bigint auto_increment,
-        Address          varchar(50)     not null,
-        DeployerId       bigint          not null,
-        StakingTokenId   bigint          null,
-        Owner            varchar(50)     not null,
-        AuthPoolCreators bit             not null,
-        AuthTraders      bit             not null,
-        AuthProviders    bit             not null,
-        TransactionFee   smallint        not null,
-        MarketFeeEnabled bit             not null,
-        CreatedBlock     bigint unsigned not null,
-        ModifiedBlock    bigint unsigned not null,
-        constraint primary key (Id),
-        constraint market_Address_uindex
-            unique (Address),
-        constraint market_deployer_Id_fk
-            foreign key (DeployerId) references market_deployer (Id),
-        index market_Owner_ix (Owner),
-        index market_staking_Token_Id_ix (StakingTokenId)
-    );
+        CREATE TABLE IF NOT EXISTS market_permission_type
+        (
+            Id             INT         NOT NULL,
+            PermissionType VARCHAR(50) NOT NULL,
+            PRIMARY KEY (Id),
+            UNIQUE market_permission_type_permission_type_uq (PermissionType)
+        ) ENGINE=INNODB;
 
-    create table if not exists market_permission_type
-    (
-        Id             int         not null,
-        PermissionType varchar(50) not null,
-        constraint primary key (Id),
-        constraint market_permission_type_PermissionType_uindex
-            unique (PermissionType)
-    );
+        CREATE TABLE IF NOT EXISTS market_permission
+        (
+            Id            BIGINT AUTO_INCREMENT,
+            MarketId      BIGINT          NOT NULL,
+            User          VARCHAR(50)     NOT NULL,
+            Permission    INT             NOT NULL,
+            IsAuthorized  BIT             NOT NULL,
+            Blame         VARCHAR(50)     NOT NULL,
+            CreatedBlock  BIGINT UNSIGNED NOT NULL,
+            ModifiedBlock BIGINT UNSIGNED NOT NULL,
+            PRIMARY KEY (Id),
+            UNIQUE market_permission_market_id_user_permission_uq (MarketId, User, Permission),
+            FOREIGN KEY market_permission_permission_market_permission_type_id_fk (Permission)
+                REFERENCES market_permission_type (Id),
+            FOREIGN KEY market_permission_market_id_market_id_fk (MarketId)
+                REFERENCES market (Id),
+            FOREIGN KEY market_permission_created_block_block_height_fk (CreatedBlock)
+                REFERENCES block (Height),
+            FOREIGN KEY market_permission_modified_block_block_height_fk (ModifiedBlock)
+                REFERENCES block (Height)
+        ) ENGINE=INNODB;
 
-    create table if not exists market_permission
-    (
-        Id            bigint auto_increment,
-        MarketId      bigint          not null,
-        User          varchar(50)     not null,
-        Permission    int             not null,
-        IsAuthorized  bit             not null,
-        Blame         varchar(50)     not null,
-        CreatedBlock  bigint unsigned not null,
-        ModifiedBlock bigint unsigned not null,
-        constraint primary key (Id),
-        constraint market_permission_MarketId_fk
-            foreign key (MarketId) references market (Id),
-        constraint market_permission_Permission_fk
-            foreign key (Permission) references market_permission_type (Id),
-        constraint market_permission_MarketId_User_Permission_uindex
-            unique (MarketId, User, Permission)
-    );
+        CREATE TABLE IF NOT EXISTS market_router
+        (
+            Id            BIGINT AUTO_INCREMENT,
+            Address       VARCHAR(50)     NOT NULL,
+            MarketId      BIGINT          NOT NULL,
+            IsActive      BIT             NOT NULL,
+            ModifiedBlock BIGINT UNSIGNED NOT NULL,
+            CreatedBlock  BIGINT UNSIGNED NOT NULL,
+            PRIMARY KEY (Id),
+            UNIQUE market_router_address_uq (Address),
+            INDEX market_router_is_active_ix (IsActive),
+            FOREIGN KEY market_router_market_id_market_id_fk (MarketId)
+                REFERENCES market (Id),
+            FOREIGN KEY market_router_created_block_block_height_fk (CreatedBlock)
+                REFERENCES block (Height),
+            FOREIGN KEY market_router_modified_block_block_height_fk (ModifiedBlock)
+                REFERENCES block (Height)
+        ) ENGINE=INNODB;
 
-    create table if not exists market_router
-    (
-        Id            bigint auto_increment,
-        Address       varchar(50)     not null,
-        MarketId      bigint          not null,
-        IsActive      tinyint(1)      not null,
-        ModifiedBlock bigint unsigned not null,
-        CreatedBlock  bigint unsigned not null,
-        constraint primary key (Id),
-        constraint market_router_Address_uindex
-            unique (Address),
-        constraint market_router_market_Id_fk
-            foreign key (MarketId) references market (Id)
-    );
+        CREATE TABLE IF NOT EXISTS token_distribution
+        (
+            Id                           BIGINT AUTO_INCREMENT,
+            TokenId                      BIGINT          NOT NULL,
+            VaultDistribution            VARCHAR(78)     NULL,
+            MiningGovernanceDistribution VARCHAR(78)     NULL,
+            PeriodIndex                  INT             NOT NULL,
+            DistributionBlock            BIGINT UNSIGNED NOT NULL,
+            NextDistributionBlock        BIGINT UNSIGNED NOT NULL,
+            CreatedBlock                 BIGINT UNSIGNED NOT NULL,
+            ModifiedBlock                BIGINT UNSIGNED NOT NULL,
+            PRIMARY KEY (Id),
+            FOREIGN KEY token_distribution_token_id_token_id_fk (TokenId)
+                REFERENCES token (Id),
+            FOREIGN KEY token_distribution_created_block_block_height_fk (CreatedBlock)
+                REFERENCES block (Height),
+            FOREIGN KEY token_distribution_modified_block_block_height_fk (ModifiedBlock)
+                REFERENCES block (Height)
+        ) ENGINE=INNODB;
 
-    create table if not exists odx_distribution
-    (
-        Id                           bigint auto_increment,
-        VaultDistribution            varchar(78)     null,
-        MiningGovernanceDistribution varchar(78)     null,
-        PeriodIndex                  int             not null,
-        DistributionBlock            bigint unsigned not null,
-        NextDistributionBlock        bigint unsigned not null,
-        CreatedBlock                 bigint unsigned not null,
-        ModifiedBlock                bigint unsigned not null,
-        constraint primary key (Id)
-    );
+        CREATE TABLE IF NOT EXISTS snapshot_type
+        (
+            Id           SMALLINT    NOT NULL,
+            SnapshotType VARCHAR(50) NOT NULL,
+            PRIMARY KEY (Id)
+        ) ENGINE=INNODB;
 
-    create table if not exists snapshot_type
-    (
-        Id           smallint    not null,
-        SnapshotType varchar(50) not null,
-        constraint primary key (Id)
-    );
+        CREATE TABLE IF NOT EXISTS market_snapshot
+        (
+            Id             BIGINT AUTO_INCREMENT,
+            MarketId       BIGINT   NOT NULL,
+            SnapshotTypeId SMALLINT NOT NULL,
+            StartDate      DATETIME NOT NULL,
+            EndDate        DATETIME NOT NULL,
+            ModifiedDate   DATETIME NOT NULL,
+            Details        JSON     NOT NULL,
+            PRIMARY KEY (Id),
+            CHECK (JSON_valid(`Details`)),
+            INDEX market_snapshot_end_date_ix (EndDate),
+            INDEX market_snapshot_start_date_ix (StartDate),
+            UNIQUE market_snapshot_market_id_start_date_end_date_ix (MarketId, StartDate, EndDate),
+            FOREIGN KEY market_snapshot_snapshot_type_id_snapshot_type_id_fk (SnapshotTypeId)
+                REFERENCES snapshot_type (Id),
+            FOREIGN KEY market_snapshot_market_id_market_id_fk (MarketId)
+                REFERENCES market (Id)
+        ) ENGINE=INNODB;
 
-    create table if not exists market_snapshot
-    (
-        Id             bigint auto_increment,
-        MarketId       bigint   not null,
-        SnapshotTypeId smallint not null,
-        StartDate      datetime not null,
-        EndDate        datetime not null,
-        ModifiedDate   datetime not null,
-        Details        json not null,
-        constraint primary key (Id),
-        constraint market_snapshot_market_Id_fk
-            foreign key (MarketId) references market (Id),
-        constraint market_snapshot_snapshot_type_Id_fk
-            foreign key (SnapshotTypeId) references snapshot_type (Id),
-        index market_snapshot_EndDate_ix (EndDate),
-        index market_snapshot_StartDate_ix (StartDate),
-        index market_snapshot_MarketId_StartDate_EndDate_ix (MarketId, StartDate, EndDate)
-    );
+        CREATE TABLE IF NOT EXISTS pool_liquidity
+        (
+            Id            BIGINT AUTO_INCREMENT,
+            SrcTokenId    BIGINT          NOT NULL,
+            LpTokenId     BIGINT          NOT NULL,
+            MarketId      BIGINT          NOT NULL,
+            Address       VARCHAR(50)     NOT NULL,
+            CreatedBlock  BIGINT UNSIGNED NOT NULL,
+            ModifiedBlock BIGINT UNSIGNED NOT NULL,
+            PRIMARY KEY (Id),
+            UNIQUE pair_address_uq (Address),
+            UNIQUE pool_liquidity_market_id_token_id_uq (MarketId, SrcTokenId),
+            FOREIGN KEY pool_liquidity_market_id_market_id_fk (MarketId)
+                REFERENCES market (Id),
+            FOREIGN KEY pool_liquidity_lp_token_id_token_id_fk (LpTokenId)
+                REFERENCES token (Id),
+            FOREIGN KEY pool_liquidity_src_token_id_token_id_fk (SrcTokenId)
+                REFERENCES token (Id),
+            FOREIGN KEY pool_liquidity_created_block_block_height_fk (CreatedBlock)
+                REFERENCES block (Height),
+            FOREIGN KEY pool_liquidity_modified_block_block_height_fk (ModifiedBlock)
+                REFERENCES block (Height)
+        ) ENGINE=INNODB;
 
-    create table if not exists pool_liquidity
-    (
-        Id            bigint auto_increment,
-        SrcTokenId    bigint          not null,
-        LpTokenId     bigint          not null,
-        MarketId      bigint          not null,
-        Address       varchar(50)     not null,
-        CreatedBlock  bigint unsigned not null,
-        ModifiedBlock bigint unsigned not null,
-        constraint primary key (Id),
-        constraint pair_Address_uindex
-            unique (Address),
-        constraint pool_liquidity_MarketId_TokenId_uindex
-            unique (MarketId, SrcTokenId),
-        constraint pool_liquidity_market_Id_fk
-            foreign key (MarketId) references market (Id),
-        constraint pool_liquidity_token_lp_Id_fk
-            foreign key (LpTokenId) references token (Id),
-        constraint pool_liquidity_token_src_Id_fk
-            foreign key (SrcTokenId) references token (Id)
-    );
+        CREATE TABLE IF NOT EXISTS pool_liquidity_snapshot
+        (
+            Id               BIGINT AUTO_INCREMENT,
+            LiquidityPoolId  BIGINT   NOT NULL,
+            SnapshotTypeId   INT      NOT NULL,
+            TransactionCount INT      NOT NULL,
+            StartDate        DATETIME NULL,
+            EndDate          DATETIME NULL,
+            ModifiedDate     DATETIME NULL,
+            Details          JSON     NOT NULL,
+            PRIMARY KEY (Id),
+            CHECK (JSON_valid(`Details`)),
+            INDEX pool_liquidity_snapshot_end_date_ix (EndDate),
+            INDEX pool_liquidity_snapshot_start_date_ix (StartDate),
+            UNIQUE market_snapshot_market_id_start_date_end_date_ix (LiquidityPoolId, StartDate, EndDate),
+            FOREIGN KEY pool_liquidity_snapshot_snapshot_type_id_snapshot_type_id_fk (SnapshotTypeId)
+                REFERENCES snapshot_type (Id),
+            FOREIGN KEY pool_liquidity_snapshot_liquidity_pool_id_pool_liquidity_id_fk (LiquidityPoolId)
+                REFERENCES pool_liquidity (Id)
+        ) ENGINE=INNODB;
 
-    create table if not exists pool_liquidity_snapshot
-    (
-        Id               bigint auto_increment,
-        LiquidityPoolId  bigint   not null,
-        SnapshotTypeId   int      not null,
-        TransactionCount int      not null,
-        StartDate        datetime null,
-        EndDate          datetime null,
-        ModifiedDate     datetime null,
-        Details          json null,
-        constraint primary key (Id),
-        constraint pool_liquidity_snapshot_pool_liquidity_Id_fk
-            foreign key (LiquidityPoolId) references pool_liquidity (Id),
-        index pool_liquidity_snapshot_EndDate_ix (EndDate),
-        index pool_liquidity_snapshot_StartDate_ix (StartDate)
-    );
+        CREATE TABLE IF NOT EXISTS pool_liquidity_summary
+        (
+            Id               BIGINT             AUTO_INCREMENT,
+            LiquidityPoolId  BIGINT             NOT NULL,
+            LiquidityUsd     DECIMAL(30, 8)     NOT NULL,
+            VolumeUsd        DECIMAL(30, 8)     NOT NULL,
+            StakingWeight    BIGINT UNSIGNED    NOT NULL,
+            LockedCrs        BIGINT UNSIGNED    NOT NULL,
+            LockedSrc        VARCHAR(78)        NOT NULL,
+            CreatedBlock     BIGINT UNSIGNED    NOT NULL,
+            ModifiedBlock    BIGINT UNSIGNED    NOT NULL,
+            PRIMARY KEY (Id),
+            INDEX pool_liquidity_summary_liquidity_pool_id_ix (LiquidityPoolId),
+            INDEX pool_liquidity_summary_liquidity_usd_ix (LiquidityUsd),
+            INDEX pool_liquidity_summary_volume_usd_ix (VolumeUsd),
+            INDEX pool_liquidity_summary_staking_weight_ix (StakingWeight),
+            INDEX pool_liquidity_summary_locked_crs_ix (LockedCrs),
+            FOREIGN KEY pool_liquidity_summary_liquidity_pool_id_pool_liquidity_id_fk (LiquidityPoolId)
+                REFERENCES pool_liquidity (Id),
+            FOREIGN KEY pool_liquidity_summary_created_block_block_height_fk (CreatedBlock)
+                REFERENCES block (Height),
+            FOREIGN KEY pool_liquidity_summary_modified_block_block_height_fk (ModifiedBlock)
+                REFERENCES block (Height)
+        ) ENGINE=INNODB;
 
-    create table if not exists pool_liquidity_summary
-    (
-        Id               bigint             auto_increment,
-        LiquidityPoolId  bigint             not null,
-        LiquidityUsd     decimal(30, 8)     not null,
-        VolumeUsd        decimal(30, 8)     not null,
-        StakingWeight    bigint unsigned    not null,
-        LockedCrs        bigint unsigned    not null,
-        LockedSrc        varchar(78)        not null,
-        CreatedBlock     bigint unsigned    not null,
-        ModifiedBlock    bigint unsigned    not null,
-        constraint primary key (Id),
-        constraint pool_liquidity_summary_pool_liquidity_Id_fk
-            foreign key (LiquidityPoolId) references pool_liquidity (Id),
-        index pool_liquidity_summary_LiquidityPoolId_ix (LiquidityPoolId),
-        index pool_liquidity_summary_LiquidityUsd_ix (LiquidityUsd),
-        index pool_liquidity_summary_VolumeUsd_ix (VolumeUsd),
-        index pool_liquidity_summary_StakingWeight_ix (StakingWeight),
-        index pool_liquidity_summary_LockedCrs_ix (LockedCrs)
-    );
+        CREATE TABLE IF NOT EXISTS pool_mining
+        (
+            Id                   BIGINT AUTO_INCREMENT,
+            LiquidityPoolId      BIGINT                  NOT NULL,
+            Address              VARCHAR(50)             NOT NULL,
+            RewardPerBlock       VARCHAR(78) DEFAULT '0' NOT NULL,
+            RewardPerLpt         VARCHAR(78) DEFAULT '0' NOT NULL,
+            MiningPeriodEndBlock BIGINT UNSIGNED         NOT NULL,
+            CreatedBlock         BIGINT UNSIGNED         NOT NULL,
+            ModifiedBlock        BIGINT UNSIGNED         NOT NULL,
+            PRIMARY KEY (Id),
+            UNIQUE mining_pool_address_uq (Address),
+            FOREIGN KEY pool_mining_liquidity_pool_id_pool_liquidity_id_fk (LiquidityPoolId)
+                REFERENCES pool_liquidity (Id),
+            FOREIGN KEY pool_mining_created_block_block_height_fk (CreatedBlock)
+                REFERENCES block (Height),
+            FOREIGN KEY pool_mining_modified_block_block_height_fk (ModifiedBlock)
+                REFERENCES block (Height)
+        ) ENGINE=INNODB;
 
-    create table if not exists pool_mining
-    (
-        Id                   bigint auto_increment,
-        LiquidityPoolId      bigint                  not null,
-        Address              varchar(50)             not null,
-        RewardPerBlock       varchar(78) default '0' not null,
-        RewardPerLpt         varchar(78) default '0' not null,
-        MiningPeriodEndBlock bigint unsigned         not null,
-        CreatedBlock         bigint unsigned         not null,
-        ModifiedBlock        bigint unsigned         not null,
-        constraint primary key (Id),
-        constraint mining_pool_Address_uindex
-            unique (Address),
-        constraint mining_pool_LiquidityPoolId_uindex
-            unique (LiquidityPoolId),
-        constraint pool_mining_pool_liquidity_Id_fk
-            foreign key (LiquidityPoolId) references pool_liquidity (Id)
-    );
+        CREATE TABLE IF NOT EXISTS token_snapshot
+        (
+            Id             BIGINT AUTO_INCREMENT,
+            TokenId        BIGINT   NOT NULL,
+            MarketId       BIGINT   NOT NULL,
+            SnapshotTypeId SMALLINT NOT NULL,
+            StartDate      DATETIME NOT NULL,
+            EndDate        DATETIME NOT NULL,
+            ModifiedDate   DATETIME NOT NULL,
+            Details        JSON     NOT NULL,
+            PRIMARY KEY (Id),
+            CHECK (JSON_valid(`Details`)),
+            INDEX token_snapshot_end_date_ix (EndDate),
+            INDEX token_snapshot_start_date_ix (StartDate),
+            UNIQUE token_snapshot_token_id_start_date_end_date_uq (TokenId, StartDate, EndDate),
+            FOREIGN KEY token_snapshot_snapshot_type_id_snapshot_type_id_fk (SnapshotTypeId)
+                REFERENCES snapshot_type (Id),
+            FOREIGN KEY token_snapshot_token_id_token_id_fk (TokenId)
+                REFERENCES token (Id)
+        ) ENGINE=INNODB;
 
-    create table if not exists token_snapshot
-    (
-        Id             bigint auto_increment,
-        TokenId        bigint   not null,
-        MarketId       bigint   not null,
-        SnapshotTypeId smallint not null,
-        StartDate      datetime not null,
-        EndDate        datetime not null,
-        ModifiedDate   datetime not null,
-        Details        json not null,
-        constraint primary key (Id),
-        constraint token_snapshot_TokenId_StartDate_EndDate_uindex
-            unique (TokenId, StartDate, EndDate),
-        constraint token_snapshot_snapshot_type_Id_fk
-            foreign key (SnapshotTypeId) references snapshot_type (Id),
-        constraint token_snapshot_token_Id_fk
-            foreign key (TokenId) references token (Id),
-        index token_snapshot_TokenId_ix (TokenId)
-    );
+        CREATE TABLE IF NOT EXISTS address_balance
+        (
+            Id              BIGINT AUTO_INCREMENT,
+            TokenId         BIGINT          NOT NULL,
+            Owner           VARCHAR(50)     NOT NULL,
+            Balance         VARCHAR(78)     NOT NULL,
+            CreatedBlock    BIGINT UNSIGNED NOT NULL,
+            ModifiedBlock   BIGINT UNSIGNED NOT NULL,
+            PRIMARY KEY (Id),
+            UNIQUE address_balance_owner_token_id_uq (Owner, TokenId),
+            FOREIGN KEY address_balance_token_id_fk (TokenId)
+                REFERENCES token (Id),
+            FOREIGN KEY address_balance_created_block_block_height_fk (CreatedBlock)
+                REFERENCES block (Height),
+            FOREIGN KEY address_balance_modified_block_block_height_fk (ModifiedBlock)
+                REFERENCES block (Height)
+        ) ENGINE=INNODB;
 
-    create table if not exists address_balance
-    (
-        Id              bigint auto_increment,
-        TokenId         bigint          not null,
-        Owner           varchar(50)     not null,
-        Balance         varchar(78)     not null,
-        CreatedBlock    bigint unsigned not null,
-        ModifiedBlock   bigint unsigned not null,
-        constraint primary key (Id),
-        constraint address_balance_token_Id_fk foreign key (TokenId) references token (Id),
-        unique address_balance_Owner_TokenId_uq (Owner, TokenId),
-        index address_balance_ModifiedBlock_ix (ModifiedBlock)
-    );
+        CREATE TABLE IF NOT EXISTS address_mining
+        (
+            Id            BIGINT AUTO_INCREMENT,
+            MiningPoolId  BIGINT          NOT NULL,
+            Owner         VARCHAR(50)     NOT NULL,
+            Balance       VARCHAR(78)     NULL,
+            CreatedBlock  BIGINT UNSIGNED NOT NULL,
+            ModifiedBlock BIGINT UNSIGNED NOT NULL,
+            PRIMARY KEY (Id),
+            UNIQUE address_mining_owner_mining_pool_id_uq (Owner, MiningPoolId),
+            FOREIGN KEY address_mining_pool_mining_id_fk (MiningPoolId)
+                REFERENCES pool_mining (Id),
+            FOREIGN KEY address_mining_created_block_block_height_fk (CreatedBlock)
+                REFERENCES block (Height),
+            FOREIGN KEY address_mining_modified_block_block_height_fk (ModifiedBlock)
+                REFERENCES block (Height)
+        ) ENGINE=INNODB;
 
-    create table if not exists address_mining
-    (
-        Id            bigint auto_increment,
-        MiningPoolId  bigint          not null,
-        Owner         varchar(50)     not null,
-        Balance       varchar(78)     null,
-        CreatedBlock  bigint unsigned not null,
-        ModifiedBlock bigint unsigned not null,
-        constraint primary key (Id),
-        constraint address_mining_pool_mining_Id_fk foreign key (MiningPoolId) references pool_mining (Id),
-        unique address_mining_Owner_MiningPoolId_uq (Owner, MiningPoolId),
-        index address_mining_ModifiedBlock_ix (ModifiedBlock)
-    );
+        CREATE TABLE IF NOT EXISTS address_staking
+        (
+            Id              BIGINT AUTO_INCREMENT,
+            LiquidityPoolId BIGINT          NOT NULL,
+            Owner           VARCHAR(50)     NOT NULL,
+            Weight          VARCHAR(78)     NOT NULL,
+            CreatedBlock    BIGINT UNSIGNED NOT NULL,
+            ModifiedBlock   BIGINT UNSIGNED NOT NULL,
+            PRIMARY KEY (Id),
+            UNIQUE address_staking_owner_liquidity_pool_id_uq (Owner, LiquidityPoolId),
+            FOREIGN KEY address_staking_pool_liquidity_id_fk (LiquidityPoolId)
+                REFERENCES pool_liquidity (Id),
+            FOREIGN KEY address_staking_created_block_block_height_fk (CreatedBlock)
+                REFERENCES block (Height),
+            FOREIGN KEY address_staking_modified_block_block_height_fk (ModifiedBlock)
+                REFERENCES block (Height)
+        ) ENGINE=INNODB;
 
-    create table if not exists address_staking
-    (
-        Id              bigint auto_increment,
-        LiquidityPoolId bigint          not null,
-        Owner           varchar(50)     not null,
-        Weight          varchar(78)     not null,
-        CreatedBlock    bigint unsigned not null,
-        ModifiedBlock   bigint unsigned not null,
-        constraint primary key (Id),
-        constraint address_staking_pool_liquidity_Id_fk foreign key (LiquidityPoolId) references pool_liquidity (Id),
-        unique address_staking_Owner_LiquidityPoolId_uq (Owner, LiquidityPoolId),
-        index address_staking_ModifiedBlock_ix (ModifiedBlock)
-    );
+        CREATE TABLE IF NOT EXISTS transaction
+        (
+            Id                 BIGINT AUTO_INCREMENT,
+            `From`             VARCHAR(50)      NOT NULL,
+            `To`               VARCHAR(50)      NULL,
+            NewContractAddress VARCHAR(50)      NULL,
+            Hash               VARCHAR(64)      NOT NULL,
+            Success            BIT DEFAULT b'0' NOT NULL,
+            GasUsed            INT              NOT NULL,
+            Block              BIGINT UNSIGNED  NOT NULL,
+            PRIMARY KEY (Id),
+            INDEX transaction_from_ix (`From`),
+            UNIQUE transaction_hash_uq (Hash),
+            UNIQUE transaction_new_contract_address_uq (NewContractAddress),
+            FOREIGN KEY transaction_block_block_height_fk (Block)
+                REFERENCES block (Height)
+        ) ENGINE=INNODB;
 
-    create table if not exists transaction
-    (
-        Id                 bigint auto_increment,
-        `From`             varchar(50)      not null,
-        `To`               varchar(50)      null,
-        NewContractAddress varchar(50)      null,
-        Hash               varchar(64)      not null,
-        Success            bit default b'0' not null,
-        GasUsed            int              not null,
-        Block              bigint unsigned  not null,
-        constraint primary key (Id),
-        constraint transaction_block_Height_fk
-            foreign key (Block) references block (Height),
-        index transaction_Block_ix (Block),
-        index transaction_From_ix (`From`),
-        index transaction_Hash_ix (Hash)
-    );
+        CREATE TABLE IF NOT EXISTS transaction_log_type
+        (
+            Id      SMALLINT    NOT NULL,
+            LogType VARCHAR(50) NOT NULL,
+            PRIMARY KEY (Id)
+        ) ENGINE=INNODB;
 
-    create table if not exists transaction_log_type
-    (
-        Id      smallint    not null,
-        LogType varchar(50) not null,
-        constraint primary key (Id)
-    );
+        CREATE TABLE IF NOT EXISTS transaction_log
+        (
+            Id            BIGINT AUTO_INCREMENT,
+            TransactionId BIGINT                       NOT NULL,
+            LogTypeId     SMALLINT                     NOT NULL,
+            SortOrder     SMALLINT                     NOT NULL,
+            Contract      VARCHAR(50)                  NOT NULL,
+            Details       JSON                             NULL,
+            PRIMARY KEY (Id),
+            CHECK (JSON_valid(`Details`)),
+            INDEX transaction_log_contract_ix (Contract),
+            FOREIGN KEY transaction_log_log_type_id_transaction_log_type_id_fk (LogTypeId)
+                REFERENCES transaction_log_type (Id),
+            FOREIGN KEY transaction_log_transaction_id_transaction_id_fk (TransactionId)
+                REFERENCES transaction (Id)
+        ) ENGINE=INNODB;
 
-    create table if not exists transaction_log
-    (
-        Id            bigint auto_increment,
-        TransactionId bigint                       not null,
-        LogTypeId     smallint                     not null,
-        SortOrder     smallint(2)                  not null,
-        Contract      varchar(50)                  not null,
-        Details       json                             null,
-        constraint primary key (Id),
-        constraint transaction_log_transaction_log_type_Id_fk
-            foreign key (LogTypeId) references transaction_log_type (Id),
-        constraint Details
-            check (json_valid(`Details`)),
-        constraint transaction_log_tranasction_Id_fk
-            foreign key (TransactionId) references transaction (Id),
-        index transaction_log_transaction_Id_ix (TransactionId),
-        index transaction_log_contract_ix (Contract)
-    );
+        CREATE TABLE IF NOT EXISTS governance
+        (
+            Id                  BIGINT AUTO_INCREMENT,
+            Address             VARCHAR(50)              NOT NULL,
+            TokenId             BIGINT                   NOT NULL,
+            NominationPeriodEnd BIGINT UNSIGNED          NOT NULL,
+            MiningDuration      BIGINT UNSIGNED          NOT NULL,
+            MiningPoolsFunded   INT UNSIGNED DEFAULT 0   NOT NULL,
+            MiningPoolReward    VARCHAR(78)  DEFAULT '0' NOT NULL,
+            CreatedBlock        BIGINT UNSIGNED          NOT NULL,
+            ModifiedBlock       BIGINT UNSIGNED          NOT NULL,
+            PRIMARY KEY (Id),
+            UNIQUE governance_address_uq (Address),
+            FOREIGN KEY governance_token_id_token_id_fk (TokenId)
+                REFERENCES token (Id),
+            FOREIGN KEY governance_created_block_block_height_fk (CreatedBlock)
+                REFERENCES block (Height),
+            FOREIGN KEY governance_modified_block_block_height_fk (ModifiedBlock)
+                REFERENCES block (Height)
+        ) ENGINE=INNODB;
 
-    create table if not exists governance
-    (
-        Id                  bigint auto_increment,
-        Address             varchar(50)              not null,
-        TokenId             bigint                   not null,
-        NominationPeriodEnd bigint unsigned          not null,
-        MiningDuration      bigint unsigned          not null,
-        MiningPoolsFunded   int unsigned default 0   not null,
-        MiningPoolReward    varchar(78)  default '0' not null,
-        CreatedBlock        bigint unsigned          not null,
-        ModifiedBlock       bigint unsigned          not null,
-        constraint primary key (Id),
-        constraint governance_Address_uindex
-            unique (Address),
-        constraint governance_TokenId_uindex
-            unique (TokenId),
-        constraint governance_token_Id_fk
-            foreign key (TokenId) references token (Id)
-    );
+        CREATE TABLE IF NOT EXISTS governance_nomination
+        (
+            Id              BIGINT AUTO_INCREMENT,
+            GovernanceId    BIGINT          NOT NULL,
+            LiquidityPoolId BIGINT          NOT NULL,
+            MiningPoolId    BIGINT          NOT NULL,
+            IsNominated     BIT             NULL,
+            Weight          VARCHAR(78)     NOT NULL,
+            CreatedBlock    BIGINT UNSIGNED NOT NULL,
+            ModifiedBlock   BIGINT UNSIGNED NOT NULL,
+            PRIMARY KEY (Id),
+            -- Deviate from naming standard with "gov_id" - name too long
+            UNIQUE governance_nomination_gov_id_liquidity_pool_id_mining_pool_id_uq (GovernanceId, LiquidityPoolId, MiningPoolId),
+            INDEX governance_nomination_is_nominated_ix (IsNominated),
+            FOREIGN KEY governance_nomination_governance_id_governance_id_fk (GovernanceId)
+                REFERENCES governance (Id),
+            FOREIGN KEY governance_nomination_liquidity_pool_id_pool_liquidity_id_fk (LiquidityPoolId)
+                REFERENCES pool_liquidity (Id),
+            FOREIGN KEY governance_nomination_mining_pool_id_pool_mining_id_fk (MiningPoolId)
+                REFERENCES pool_mining (Id),
+            FOREIGN KEY governance_nomination_created_block_block_height_fk (CreatedBlock)
+                REFERENCES block (Height),
+            FOREIGN KEY governance_nomination_modified_block_block_height_fk (ModifiedBlock)
+                REFERENCES block (Height)
+        ) ENGINE=INNODB;
 
-    create table if not exists governance_nomination
-    (
-        Id              bigint auto_increment,
-        LiquidityPoolId bigint          not null,
-        MiningPoolId    bigint          not null,
-        IsNominated     bit             null,
-        Weight          varchar(78)     not null,
-        CreatedBlock    bigint unsigned not null,
-        ModifiedBlock   bigint unsigned not null,
-        constraint primary key (Id),
-        constraint governance_nomination_LiquidityPoolId_MiningPoolId_uindex
-            unique (LiquidityPoolId, MiningPoolId),
-        index governance_nomination_IsNominated_ix (IsNominated)
-    );
+        CREATE TABLE IF NOT EXISTS vault
+        (
+            Id                  BIGINT AUTO_INCREMENT,
+            TokenId             BIGINT          NOT NULL,
+            Address             VARCHAR(50)     NOT NULL,
+            Owner               VARCHAR(50)     NOT NULL,
+            Genesis             BIGINT UNSIGNED NOT NULL,
+            UnassignedSupply    VARCHAR(78)     NOT NULL,
+            CreatedBlock        BIGINT UNSIGNED NOT NULL,
+            ModifiedBlock       BIGINT UNSIGNED NOT NULL,
+            PRIMARY KEY (Id),
+            UNIQUE vault_address_uq (Address),
+            FOREIGN KEY vault_token_id_token_id_fk (TokenId)
+                REFERENCES token (Id),
+            FOREIGN KEY vault_created_block_block_height_fk (CreatedBlock)
+                REFERENCES block (Height),
+            FOREIGN KEY vault_modified_block_block_height_fk (ModifiedBlock)
+                REFERENCES block (Height)
+        ) ENGINE=INNODB;
 
-    create table if not exists vault
-    (
-        Id                  bigint auto_increment,
-        TokenId             bigint          not null,
-        Address             varchar(50)     not null,
-        Owner               varchar(50)     not null,
-        Genesis             bigint unsigned not null,
-        UnassignedSupply    varchar(78)     not null,
-        CreatedBlock        bigint unsigned not null,
-        ModifiedBlock       bigint unsigned not null,
-        primary key (Id),
-        constraint vault_token_Id_fk foreign key (TokenId) references token (Id),
-        unique vault_Address_uq (Address),
-        unique vault_TokenId_uq (TokenId)
-    );
+        CREATE TABLE IF NOT EXISTS vault_certificate
+        (
+            Id            BIGINT AUTO_INCREMENT,
+            VaultId       BIGINT          NOT NULL,
+            Owner         VARCHAR(50)     NOT NULL,
+            Amount        VARCHAR(78)     NOT NULL,
+            VestedBlock   BIGINT UNSIGNED NOT NULL,
+            Redeemed      BIT             NOT NULL,
+            Revoked       BIT             NOT NULL,
+            CreatedBlock  BIGINT UNSIGNED NOT NULL,
+            ModifiedBlock BIGINT UNSIGNED NOT NULL,
+            PRIMARY KEY (Id),
+            INDEX vault_certificate_owner_ix (Owner),
+            FOREIGN KEY vault_certificate_vault_id_vault_id_fk (VaultId)
+                REFERENCES vault (Id),
+            FOREIGN KEY vault_certificate_created_block_block_height_fk (CreatedBlock)
+                REFERENCES block (Height),
+            FOREIGN KEY vault_certificate_modified_block_block_height_fk (ModifiedBlock)
+                REFERENCES block (Height)
+        ) ENGINE=INNODB;
 
-    create table if not exists vault_certificate
-    (
-        Id            bigint auto_increment,
-        VaultId       bigint          not null,
-        Owner         varchar(50)     not null,
-        Amount        varchar(78)     not null,
-        VestedBlock   bigint unsigned not null,
-        Redeemed      bit             not null,
-        Revoked       bit             not null,
-        CreatedBlock  bigint unsigned not null,
-        ModifiedBlock bigint unsigned not null,
-        primary key (Id),
-        constraint vault_certificate_vault_Id_fk foreign key (VaultId) references vault (Id),
-        index vault_certificate_Owner_ix (Owner)
-    );
+        -- --------
+        -- --------
+        -- Populate Lookup Type Tables
+        -- -------
+        -- -------
 
-    -- --------
-    -- --------
-    -- Populate Lookup Type Tables
-    -- -------
-    -- -------
+        INSERT IGNORE INTO token(Id, Address, Symbol, Name, Decimals, Sats, TotalSupply, CreatedBlock, ModifiedBlock)
+        VALUES(1, 'CRS', 'CRS', 'Cirrus', 8, 100000000, '13000000000000000', 1, 1);
 
-    insert ignore into token(Id, Address, Symbol, Name, Decimals, Sats, TotalSupply, CreatedBlock, ModifiedBlock)
-    values(1, 'CRS', 'CRS', 'Cirrus', 8, 100000000, '13000000000000000', 1, 1);
+        INSERT IGNORE INTO index_lock(Id, Available, Locked, ModifiedDate)
+        VALUES (1, 0, 0, '0001-01-01 00:00:00');
 
-    insert ignore into index_lock(Id, Available, Locked, ModifiedDate)
-    values (1, 0, 0, '0001-01-01 00:00:00');
+        INSERT IGNORE INTO transaction_log_type(Id, LogType)
+        VALUES
+        (1, 'CreateMarketLog'),
+        (2, 'SetPendingDeployerOwnershipLog'),
+        (3, 'ClaimPendingDeployerOwnershipLog'),
+        (4, 'CreateLiquidityPoolLog'),
+        (5, 'SetPendingMarketOwnershipLog'),
+        (6, 'ClaimPendingMarketOwnershipLog'),
+        (7, 'ChangeMarketPermissionLog'),
+        (8, 'MintLog'),
+        (9, 'BurnLog'),
+        (10, 'SwapLog'),
+        (11, 'ReservesLog'),
+        (12, 'ApprovalLog'),
+        (13, 'TransferLog'),
+        (14, 'StartStakingLog'),
+        (15, 'StopStakingLog'),
+        (16, 'CollectStakingRewardsLog'),
+        (17, 'RewardMiningPoolLog'),
+        (18, 'NominationLog'),
+        (19, 'StartMiningLog'),
+        (20, 'StopMiningLog'),
+        (21, 'CollectMiningRewardsLog'),
+        (22, 'EnableMiningLog'),
+        (23, 'DistributionLog'),
+        (24, 'CreateVaultCertificateLog'),
+        (25, 'RevokeVaultCertificateLog'),
+        (26, 'RedeemVaultCertificateLog'),
+        (27, 'SetPendingVaultOwnershipLog'),
+        (28, 'ClaimPendingVaultOwnershipLog');
 
-    insert ignore into transaction_log_type(Id, LogType)
-    values
-    (1, 'CreateMarketLog'),
-    (2, 'SetPendingDeployerOwnershipLog'),
-    (3, 'ClaimPendingDeployerOwnershipLog'),
-    (4, 'CreateLiquidityPoolLog'),
-    (5, 'SetPendingMarketOwnershipLog'),
-    (6, 'ClaimPendingMarketOwnershipLog'),
-    (7, 'ChangeMarketPermissionLog'),
-    (8, 'MintLog'),
-    (9, 'BurnLog'),
-    (10, 'SwapLog'),
-    (11, 'ReservesLog'),
-    (12, 'ApprovalLog'),
-    (13, 'TransferLog'),
-    (14, 'StartStakingLog'),
-    (15, 'StopStakingLog'),
-    (16, 'CollectStakingRewardsLog'),
-    (17, 'RewardMiningPoolLog'),
-    (18, 'NominationLog'),
-    (19, 'StartMiningLog'),
-    (20, 'StopMiningLog'),
-    (21, 'CollectMiningRewardsLog'),
-    (22, 'EnableMiningLog'),
-    (23, 'DistributionLog'),
-    (24, 'CreateVaultCertificateLog'),
-    (25, 'RevokeVaultCertificateLog'),
-    (26, 'RedeemVaultCertificateLog'),
-    (27, 'SetPendingVaultOwnershipLog'),
-    (28, 'ClaimPendingVaultOwnershipLog');
+        INSERT IGNORE INTO snapshot_type(Id, SnapshotType)
+        VALUES
+            (1, 'Minute'),
+            (2, 'Hour'),
+            (3, 'Day'),
+            (4, 'Week'),
+            (5, 'Month');
 
-    insert ignore into snapshot_type
-    values
-        (1, 'Minute'),
-        (2, 'Hour'),
-        (3, 'Day'),
-        (4, 'Month'),
-        (5, 'Year');
-
-    insert ignore into market_permission_type
-    values
-        (1, 'CreatePool'),
-        (2, 'Trade'),
-        (3, 'Provide'),
-        (4, 'SetPermissions');
-
- END;
+        INSERT IGNORE INTO market_permission_type(Id, PermissionType)
+        VALUES
+            (1, 'CreatePool'),
+            (2, 'Trade'),
+            (3, 'Provide'),
+            (4, 'SetPermissions');
+    END;
 //
 
 CALL init_db();
