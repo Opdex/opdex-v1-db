@@ -1,5 +1,3 @@
-USE Local_Opdex;
-
 -- Creates the database for use with Opdex Platform API
 DELIMITER //
 
