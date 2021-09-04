@@ -1,8 +1,22 @@
 -- Creates the database for use with Opdex Platform API
 DELIMITER //
 
-CREATE PROCEDURE init_db ()
+DROP PROCEDURE IF EXISTS CreateDatabase;
+//
+
+CREATE PROCEDURE CreateDatabase ()
     BEGIN
+        CREATE TABLE IF NOT EXISTS block
+        (
+            Height     BIGINT UNSIGNED NOT NULL,
+            Hash       VARCHAR(64)     NOT NULL,
+            Time       DATETIME        NOT NULL,
+            MedianTime DATETIME        NOT NULL,
+            PRIMARY KEY (Height),
+            UNIQUE block_hash_uq (Hash),
+            INDEX block_median_time_ix (MedianTime)
+        ) ENGINE=INNODB;
+
         CREATE TABLE IF NOT EXISTS token
         (
             Id            BIGINT AUTO_INCREMENT,
@@ -20,21 +34,12 @@ CREATE PROCEDURE init_db ()
             INDEX token_symbol_ix (Symbol),
             INDEX token_name_ix (Name),
             INDEX token_is_lpt_ix (IsLpt),
-            FOREIGN KEY token_created_block_block_height_fk (CreatedBlock)
+            CONSTRAINT token_created_block_block_height_fk
+                FOREIGN KEY (CreatedBlock)
                 REFERENCES block (Height),
-            FOREIGN KEY token_modified_block_block_height_fk (ModifiedBlock)
+            CONSTRAINT token_modified_block_block_height_fk
+                FOREIGN KEY (ModifiedBlock)
                 REFERENCES block (Height)
-        ) ENGINE=INNODB;
-
-        CREATE TABLE IF NOT EXISTS block
-        (
-            Height     BIGINT UNSIGNED NOT NULL,
-            Hash       VARCHAR(64)     NOT NULL,
-            Time       DATETIME        NOT NULL,
-            MedianTime DATETIME        NOT NULL,
-            PRIMARY KEY (Height),
-            UNIQUE block_hash_uq (Hash),
-            INDEX block_median_time_ix (MedianTime)
         ) ENGINE=INNODB;
 
         CREATE TABLE IF NOT EXISTS index_lock
@@ -57,10 +62,12 @@ CREATE PROCEDURE init_db ()
             ModifiedBlock BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
             UNIQUE deployer_address_uq (Address),
-            INDEX deployer_is_active_ix(IsActive),
-            FOREIGN KEY market_deployer_created_block_block_height_fk (CreatedBlock)
+            INDEX deployer_is_active_ix (IsActive),
+            CONSTRAINT market_deployer_created_block_block_height_fk
+                FOREIGN KEY (CreatedBlock)
                 REFERENCES block (Height),
-            FOREIGN KEY market_deployer_modified_block_block_height_fk (ModifiedBlock)
+            CONSTRAINT market_deployer_modified_block_block_height_fk
+                FOREIGN KEY (ModifiedBlock)
                 REFERENCES block (Height)
         ) ENGINE=INNODB;
 
@@ -81,11 +88,14 @@ CREATE PROCEDURE init_db ()
             PRIMARY KEY (Id),
             UNIQUE market_address_uq (Address),
             INDEX market_staking_token_id_ix (StakingTokenId),
-            FOREIGN KEY market_deployer_id_market_deployer_id_fk (DeployerId)
+            CONSTRAINT market_deployer_id_market_deployer_id_fk
+                FOREIGN KEY (DeployerId)
                 REFERENCES market_deployer (Id),
-            FOREIGN KEY market_created_block_block_height_fk (CreatedBlock)
+            CONSTRAINT market_created_block_block_height_fk
+                FOREIGN KEY (CreatedBlock)
                 REFERENCES block (Height),
-            FOREIGN KEY market_modified_block_block_height_fk (ModifiedBlock)
+            CONSTRAINT market_modified_block_block_height_fk
+                FOREIGN KEY (ModifiedBlock)
                 REFERENCES block (Height)
         ) ENGINE=INNODB;
 
@@ -109,13 +119,17 @@ CREATE PROCEDURE init_db ()
             ModifiedBlock BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
             UNIQUE market_permission_market_id_user_permission_uq (MarketId, User, Permission),
-            FOREIGN KEY market_permission_permission_market_permission_type_id_fk (Permission)
+            CONSTRAINT market_permission_permission_market_permission_type_id_fk
+                FOREIGN KEY (Permission)
                 REFERENCES market_permission_type (Id),
-            FOREIGN KEY market_permission_market_id_market_id_fk (MarketId)
+            CONSTRAINT market_permission_market_id_market_id_fk
+                FOREIGN KEY (MarketId)
                 REFERENCES market (Id),
-            FOREIGN KEY market_permission_created_block_block_height_fk (CreatedBlock)
+            CONSTRAINT market_permission_created_block_block_height_fk
+                FOREIGN KEY (CreatedBlock)
                 REFERENCES block (Height),
-            FOREIGN KEY market_permission_modified_block_block_height_fk (ModifiedBlock)
+            CONSTRAINT market_permission_modified_block_block_height_fk
+                FOREIGN KEY (ModifiedBlock)
                 REFERENCES block (Height)
         ) ENGINE=INNODB;
 
@@ -130,11 +144,14 @@ CREATE PROCEDURE init_db ()
             PRIMARY KEY (Id),
             UNIQUE market_router_address_uq (Address),
             INDEX market_router_is_active_ix (IsActive),
-            FOREIGN KEY market_router_market_id_market_id_fk (MarketId)
+            CONSTRAINT market_router_market_id_market_id_fk
+                FOREIGN KEY (MarketId)
                 REFERENCES market (Id),
-            FOREIGN KEY market_router_created_block_block_height_fk (CreatedBlock)
+            CONSTRAINT market_router_created_block_block_height_fk
+                FOREIGN KEY (CreatedBlock)
                 REFERENCES block (Height),
-            FOREIGN KEY market_router_modified_block_block_height_fk (ModifiedBlock)
+            CONSTRAINT market_router_modified_block_block_height_fk
+                FOREIGN KEY (ModifiedBlock)
                 REFERENCES block (Height)
         ) ENGINE=INNODB;
 
@@ -150,11 +167,14 @@ CREATE PROCEDURE init_db ()
             CreatedBlock                 BIGINT UNSIGNED NOT NULL,
             ModifiedBlock                BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
-            FOREIGN KEY token_distribution_token_id_token_id_fk (TokenId)
+            CONSTRAINT token_distribution_token_id_token_id_fk
+                FOREIGN KEY (TokenId)
                 REFERENCES token (Id),
-            FOREIGN KEY token_distribution_created_block_block_height_fk (CreatedBlock)
+            CONSTRAINT token_distribution_created_block_block_height_fk
+                FOREIGN KEY (CreatedBlock)
                 REFERENCES block (Height),
-            FOREIGN KEY token_distribution_modified_block_block_height_fk (ModifiedBlock)
+            CONSTRAINT token_distribution_modified_block_block_height_fk
+                FOREIGN KEY (ModifiedBlock)
                 REFERENCES block (Height)
         ) ENGINE=INNODB;
 
@@ -179,9 +199,11 @@ CREATE PROCEDURE init_db ()
             INDEX market_snapshot_end_date_ix (EndDate),
             INDEX market_snapshot_start_date_ix (StartDate),
             UNIQUE market_snapshot_market_id_start_date_end_date_ix (MarketId, StartDate, EndDate),
-            FOREIGN KEY market_snapshot_snapshot_type_id_snapshot_type_id_fk (SnapshotTypeId)
+            CONSTRAINT market_snapshot_snapshot_type_id_snapshot_type_id_fk
+                FOREIGN KEY (SnapshotTypeId)
                 REFERENCES snapshot_type (Id),
-            FOREIGN KEY market_snapshot_market_id_market_id_fk (MarketId)
+            CONSTRAINT market_snapshot_market_id_market_id_fk
+                FOREIGN KEY (MarketId)
                 REFERENCES market (Id)
         ) ENGINE=INNODB;
 
@@ -195,17 +217,22 @@ CREATE PROCEDURE init_db ()
             CreatedBlock  BIGINT UNSIGNED NOT NULL,
             ModifiedBlock BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
-            UNIQUE pair_address_uq (Address),
+            UNIQUE pool_liquidity_address_uq (Address),
             UNIQUE pool_liquidity_market_id_token_id_uq (MarketId, SrcTokenId),
-            FOREIGN KEY pool_liquidity_market_id_market_id_fk (MarketId)
+            CONSTRAINT pool_liquidity_market_id_market_id_fk
+                FOREIGN KEY (MarketId)
                 REFERENCES market (Id),
-            FOREIGN KEY pool_liquidity_lp_token_id_token_id_fk (LpTokenId)
+            CONSTRAINT pool_liquidity_lp_token_id_token_id_fk
+                FOREIGN KEY (LpTokenId)
                 REFERENCES token (Id),
-            FOREIGN KEY pool_liquidity_src_token_id_token_id_fk (SrcTokenId)
+            CONSTRAINT pool_liquidity_src_token_id_token_id_fk
+                FOREIGN KEY (SrcTokenId)
                 REFERENCES token (Id),
-            FOREIGN KEY pool_liquidity_created_block_block_height_fk (CreatedBlock)
+            CONSTRAINT pool_liquidity_created_block_block_height_fk
+                FOREIGN KEY (CreatedBlock)
                 REFERENCES block (Height),
-            FOREIGN KEY pool_liquidity_modified_block_block_height_fk (ModifiedBlock)
+            CONSTRAINT pool_liquidity_modified_block_block_height_fk
+                FOREIGN KEY (ModifiedBlock)
                 REFERENCES block (Height)
         ) ENGINE=INNODB;
 
@@ -213,7 +240,7 @@ CREATE PROCEDURE init_db ()
         (
             Id               BIGINT AUTO_INCREMENT,
             LiquidityPoolId  BIGINT   NOT NULL,
-            SnapshotTypeId   INT      NOT NULL,
+            SnapshotTypeId   SMALLINT NOT NULL,
             TransactionCount INT      NOT NULL,
             StartDate        DATETIME NULL,
             EndDate          DATETIME NULL,
@@ -224,9 +251,11 @@ CREATE PROCEDURE init_db ()
             INDEX pool_liquidity_snapshot_end_date_ix (EndDate),
             INDEX pool_liquidity_snapshot_start_date_ix (StartDate),
             UNIQUE market_snapshot_market_id_start_date_end_date_ix (LiquidityPoolId, StartDate, EndDate),
-            FOREIGN KEY pool_liquidity_snapshot_snapshot_type_id_snapshot_type_id_fk (SnapshotTypeId)
+            CONSTRAINT pool_liquidity_snapshot_snapshot_type_id_snapshot_type_id_fk
+                FOREIGN KEY (SnapshotTypeId)
                 REFERENCES snapshot_type (Id),
-            FOREIGN KEY pool_liquidity_snapshot_liquidity_pool_id_pool_liquidity_id_fk (LiquidityPoolId)
+            CONSTRAINT pool_liquidity_snapshot_liquidity_pool_id_pool_liquidity_id_fk
+                FOREIGN KEY (LiquidityPoolId)
                 REFERENCES pool_liquidity (Id)
         ) ENGINE=INNODB;
 
@@ -247,11 +276,14 @@ CREATE PROCEDURE init_db ()
             INDEX pool_liquidity_summary_volume_usd_ix (VolumeUsd),
             INDEX pool_liquidity_summary_staking_weight_ix (StakingWeight),
             INDEX pool_liquidity_summary_locked_crs_ix (LockedCrs),
-            FOREIGN KEY pool_liquidity_summary_liquidity_pool_id_pool_liquidity_id_fk (LiquidityPoolId)
+            CONSTRAINT pool_liquidity_summary_liquidity_pool_id_pool_liquidity_id_fk
+                FOREIGN KEY (LiquidityPoolId)
                 REFERENCES pool_liquidity (Id),
-            FOREIGN KEY pool_liquidity_summary_created_block_block_height_fk (CreatedBlock)
+            CONSTRAINT pool_liquidity_summary_created_block_block_height_fk
+                FOREIGN KEY (CreatedBlock)
                 REFERENCES block (Height),
-            FOREIGN KEY pool_liquidity_summary_modified_block_block_height_fk (ModifiedBlock)
+            CONSTRAINT pool_liquidity_summary_modified_block_block_height_fk
+                FOREIGN KEY (ModifiedBlock)
                 REFERENCES block (Height)
         ) ENGINE=INNODB;
 
@@ -267,11 +299,14 @@ CREATE PROCEDURE init_db ()
             ModifiedBlock        BIGINT UNSIGNED         NOT NULL,
             PRIMARY KEY (Id),
             UNIQUE mining_pool_address_uq (Address),
-            FOREIGN KEY pool_mining_liquidity_pool_id_pool_liquidity_id_fk (LiquidityPoolId)
+            CONSTRAINT pool_mining_liquidity_pool_id_pool_liquidity_id_fk
+                FOREIGN KEY (LiquidityPoolId)
                 REFERENCES pool_liquidity (Id),
-            FOREIGN KEY pool_mining_created_block_block_height_fk (CreatedBlock)
+            CONSTRAINT pool_mining_created_block_block_height_fk
+                FOREIGN KEY (CreatedBlock)
                 REFERENCES block (Height),
-            FOREIGN KEY pool_mining_modified_block_block_height_fk (ModifiedBlock)
+            CONSTRAINT pool_mining_modified_block_block_height_fk
+                FOREIGN KEY (ModifiedBlock)
                 REFERENCES block (Height)
         ) ENGINE=INNODB;
 
@@ -289,10 +324,13 @@ CREATE PROCEDURE init_db ()
             CHECK (JSON_valid(`Details`)),
             INDEX token_snapshot_end_date_ix (EndDate),
             INDEX token_snapshot_start_date_ix (StartDate),
-            UNIQUE token_snapshot_token_id_start_date_end_date_uq (TokenId, StartDate, EndDate),
-            FOREIGN KEY token_snapshot_snapshot_type_id_snapshot_type_id_fk (SnapshotTypeId)
+            INDEX token_snapshot_market_id_ix (StartDate), -- No FK, CRS uses MarketId = 0
+            UNIQUE token_snapshot_token_id_start_date_end_date_uq (MarketId, TokenId, StartDate, EndDate),
+            CONSTRAINT token_snapshot_snapshot_type_id_snapshot_type_id_fk
+                FOREIGN KEY (SnapshotTypeId)
                 REFERENCES snapshot_type (Id),
-            FOREIGN KEY token_snapshot_token_id_token_id_fk (TokenId)
+            CONSTRAINT token_snapshot_token_id_token_id_fk
+                FOREIGN KEY (TokenId)
                 REFERENCES token (Id)
         ) ENGINE=INNODB;
 
@@ -306,11 +344,14 @@ CREATE PROCEDURE init_db ()
             ModifiedBlock   BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
             UNIQUE address_balance_owner_token_id_uq (Owner, TokenId),
-            FOREIGN KEY address_balance_token_id_fk (TokenId)
+            CONSTRAINT address_balance_token_id_fk
+                FOREIGN KEY (TokenId)
                 REFERENCES token (Id),
-            FOREIGN KEY address_balance_created_block_block_height_fk (CreatedBlock)
+            CONSTRAINT address_balance_created_block_block_height_fk
+                FOREIGN KEY (CreatedBlock)
                 REFERENCES block (Height),
-            FOREIGN KEY address_balance_modified_block_block_height_fk (ModifiedBlock)
+            CONSTRAINT address_balance_modified_block_block_height_fk
+                FOREIGN KEY (ModifiedBlock)
                 REFERENCES block (Height)
         ) ENGINE=INNODB;
 
@@ -324,11 +365,14 @@ CREATE PROCEDURE init_db ()
             ModifiedBlock BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
             UNIQUE address_mining_owner_mining_pool_id_uq (Owner, MiningPoolId),
-            FOREIGN KEY address_mining_pool_mining_id_fk (MiningPoolId)
+            CONSTRAINT address_mining_pool_mining_id_fk
+                FOREIGN KEY (MiningPoolId)
                 REFERENCES pool_mining (Id),
-            FOREIGN KEY address_mining_created_block_block_height_fk (CreatedBlock)
+            CONSTRAINT address_mining_created_block_block_height_fk
+                FOREIGN KEY (CreatedBlock)
                 REFERENCES block (Height),
-            FOREIGN KEY address_mining_modified_block_block_height_fk (ModifiedBlock)
+            CONSTRAINT address_mining_modified_block_block_height_fk
+                FOREIGN KEY (ModifiedBlock)
                 REFERENCES block (Height)
         ) ENGINE=INNODB;
 
@@ -342,11 +386,14 @@ CREATE PROCEDURE init_db ()
             ModifiedBlock   BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
             UNIQUE address_staking_owner_liquidity_pool_id_uq (Owner, LiquidityPoolId),
-            FOREIGN KEY address_staking_pool_liquidity_id_fk (LiquidityPoolId)
+            CONSTRAINT address_staking_pool_liquidity_id_fk
+                FOREIGN KEY (LiquidityPoolId)
                 REFERENCES pool_liquidity (Id),
-            FOREIGN KEY address_staking_created_block_block_height_fk (CreatedBlock)
+            CONSTRAINT address_staking_created_block_block_height_fk
+                FOREIGN KEY (CreatedBlock)
                 REFERENCES block (Height),
-            FOREIGN KEY address_staking_modified_block_block_height_fk (ModifiedBlock)
+            CONSTRAINT address_staking_modified_block_block_height_fk
+                FOREIGN KEY (ModifiedBlock)
                 REFERENCES block (Height)
         ) ENGINE=INNODB;
 
@@ -364,7 +411,8 @@ CREATE PROCEDURE init_db ()
             INDEX transaction_from_ix (`From`),
             UNIQUE transaction_hash_uq (Hash),
             UNIQUE transaction_new_contract_address_uq (NewContractAddress),
-            FOREIGN KEY transaction_block_block_height_fk (Block)
+            CONSTRAINT transaction_block_block_height_fk
+                FOREIGN KEY (Block)
                 REFERENCES block (Height)
         ) ENGINE=INNODB;
 
@@ -386,10 +434,13 @@ CREATE PROCEDURE init_db ()
             PRIMARY KEY (Id),
             CHECK (JSON_valid(`Details`)),
             INDEX transaction_log_contract_ix (Contract),
-            FOREIGN KEY transaction_log_log_type_id_transaction_log_type_id_fk (LogTypeId)
+            CONSTRAINT transaction_log_log_type_id_transaction_log_type_id_fk
+                FOREIGN KEY (LogTypeId)
                 REFERENCES transaction_log_type (Id),
-            FOREIGN KEY transaction_log_transaction_id_transaction_id_fk (TransactionId)
+            CONSTRAINT transaction_log_transaction_id_transaction_id_fk
+                FOREIGN KEY (TransactionId)
                 REFERENCES transaction (Id)
+                ON DELETE CASCADE
         ) ENGINE=INNODB;
 
         CREATE TABLE IF NOT EXISTS governance
@@ -405,11 +456,14 @@ CREATE PROCEDURE init_db ()
             ModifiedBlock       BIGINT UNSIGNED          NOT NULL,
             PRIMARY KEY (Id),
             UNIQUE governance_address_uq (Address),
-            FOREIGN KEY governance_token_id_token_id_fk (TokenId)
+            CONSTRAINT governance_token_id_token_id_fk
+                FOREIGN KEY (TokenId)
                 REFERENCES token (Id),
-            FOREIGN KEY governance_created_block_block_height_fk (CreatedBlock)
+            CONSTRAINT governance_created_block_block_height_fk
+                FOREIGN KEY (CreatedBlock)
                 REFERENCES block (Height),
-            FOREIGN KEY governance_modified_block_block_height_fk (ModifiedBlock)
+            CONSTRAINT governance_modified_block_block_height_fk
+                FOREIGN KEY (ModifiedBlock)
                 REFERENCES block (Height)
         ) ENGINE=INNODB;
 
@@ -427,15 +481,20 @@ CREATE PROCEDURE init_db ()
             -- Deviate from naming standard with "gov_id" - name too long
             UNIQUE governance_nomination_gov_id_liquidity_pool_id_mining_pool_id_uq (GovernanceId, LiquidityPoolId, MiningPoolId),
             INDEX governance_nomination_is_nominated_ix (IsNominated),
-            FOREIGN KEY governance_nomination_governance_id_governance_id_fk (GovernanceId)
+            CONSTRAINT governance_nomination_governance_id_governance_id_fk
+                FOREIGN KEY (GovernanceId)
                 REFERENCES governance (Id),
-            FOREIGN KEY governance_nomination_liquidity_pool_id_pool_liquidity_id_fk (LiquidityPoolId)
+            CONSTRAINT governance_nomination_liquidity_pool_id_pool_liquidity_id_fk
+                FOREIGN KEY (LiquidityPoolId)
                 REFERENCES pool_liquidity (Id),
-            FOREIGN KEY governance_nomination_mining_pool_id_pool_mining_id_fk (MiningPoolId)
+            CONSTRAINT governance_nomination_mining_pool_id_pool_mining_id_fk
+                FOREIGN KEY (MiningPoolId)
                 REFERENCES pool_mining (Id),
-            FOREIGN KEY governance_nomination_created_block_block_height_fk (CreatedBlock)
+            CONSTRAINT governance_nomination_created_block_block_height_fk
+                FOREIGN KEY (CreatedBlock)
                 REFERENCES block (Height),
-            FOREIGN KEY governance_nomination_modified_block_block_height_fk (ModifiedBlock)
+            CONSTRAINT governance_nomination_modified_block_block_height_fk
+                FOREIGN KEY (ModifiedBlock)
                 REFERENCES block (Height)
         ) ENGINE=INNODB;
 
@@ -451,11 +510,14 @@ CREATE PROCEDURE init_db ()
             ModifiedBlock       BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
             UNIQUE vault_address_uq (Address),
-            FOREIGN KEY vault_token_id_token_id_fk (TokenId)
+            CONSTRAINT vault_token_id_token_id_fk
+                FOREIGN KEY (TokenId)
                 REFERENCES token (Id),
-            FOREIGN KEY vault_created_block_block_height_fk (CreatedBlock)
+            CONSTRAINT vault_created_block_block_height_fk
+                FOREIGN KEY (CreatedBlock)
                 REFERENCES block (Height),
-            FOREIGN KEY vault_modified_block_block_height_fk (ModifiedBlock)
+            CONSTRAINT vault_modified_block_block_height_fk
+                FOREIGN KEY (ModifiedBlock)
                 REFERENCES block (Height)
         ) ENGINE=INNODB;
 
@@ -472,11 +534,14 @@ CREATE PROCEDURE init_db ()
             ModifiedBlock BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
             INDEX vault_certificate_owner_ix (Owner),
-            FOREIGN KEY vault_certificate_vault_id_vault_id_fk (VaultId)
+            CONSTRAINT vault_certificate_vault_id_vault_id_fk
+                FOREIGN KEY (VaultId)
                 REFERENCES vault (Id),
-            FOREIGN KEY vault_certificate_created_block_block_height_fk (CreatedBlock)
+            CONSTRAINT vault_certificate_created_block_block_height_fk
+                FOREIGN KEY (CreatedBlock)
                 REFERENCES block (Height),
-            FOREIGN KEY vault_certificate_modified_block_block_height_fk (ModifiedBlock)
+            CONSTRAINT vault_certificate_modified_block_block_height_fk
+                FOREIGN KEY (ModifiedBlock)
                 REFERENCES block (Height)
         ) ENGINE=INNODB;
 
@@ -486,8 +551,11 @@ CREATE PROCEDURE init_db ()
         -- -------
         -- -------
 
-        INSERT IGNORE INTO token(Id, Address, Symbol, Name, Decimals, Sats, TotalSupply, CreatedBlock, ModifiedBlock)
-        VALUES(1, 'CRS', 'CRS', 'Cirrus', 8, 100000000, '13000000000000000', 1, 1);
+        INSERT IGNORE INTO block(Height, Hash, Time, MedianTime)
+        VALUES(1, 'default', '0001-01-01 00:00:00', '0001-01-01 00:00:00');
+
+        INSERT IGNORE INTO token(Id, Address, IsLpt, Symbol, Name, Decimals, Sats, TotalSupply, CreatedBlock, ModifiedBlock)
+        VALUES(1, 'CRS', false, 'CRS', 'Cirrus', 8, 100000000, '13000000000000000', 1, 1);
 
         INSERT IGNORE INTO index_lock(Id, Available, Locked, ModifiedDate)
         VALUES (1, 0, 0, '0001-01-01 00:00:00');
@@ -540,10 +608,10 @@ CREATE PROCEDURE init_db ()
     END;
 //
 
-CALL init_db();
+CALL CreateDatabase();
 //
 
-DROP PROCEDURE init_db;
+DROP PROCEDURE CreateDatabase;
 //
 
 DELIMITER ;
