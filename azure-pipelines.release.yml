@@ -23,7 +23,7 @@ jobs:
               DatabaseName: 'platform'
               SqlFile: $(Pipeline.Workspace)/database/pipeline-scripts/create-database.sql
               IpDetectionMethod: 'AutoDetect'
-          - task: AzureMysqlDeployment@2
+          - task: AzureMysqlDeployment@1
             inputs:
               azureSubscription: $(azureSubscription) 
               ServerName: 'sql-opdex-${{ parameters.environment }}.mysql.database.azure.com'
