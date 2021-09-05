@@ -21,5 +21,15 @@ jobs:
               SqlPassword: '$(sqlpassword)'
               TaskNameSelector: 'SqlTaskFile'
               DatabaseName: 'platform'
-              SqlFile: $(Pipeline.Workspace)/database/deploy.sql
+              SqlFile: $(Pipeline.Workspace)/database/pipeline-scripts/create-database.sql
+              IpDetectionMethod: 'AutoDetect'
+          - task: AzureMysqlDeployment@1
+            inputs:
+              azureSubscription: $(azureSubscription) 
+              ServerName: 'sql-opdex-${{ parameters.environment }}.mysql.database.azure.com'
+              SqlUsername: 'opdex@sql-opdex-${{ parameters.environment }}'
+              SqlPassword: '$(sqlpassword)'
+              TaskNameSelector: 'SqlTaskFile'
+              DatabaseName: 'platform'
+              SqlFile: $(Pipeline.Workspace)/database/pipeline-scripts/create-rewind-to-block-procedure.sql
               IpDetectionMethod: 'AutoDetect'

@@ -21,7 +21,7 @@ stages:
     - task: PublishBuildArtifacts@1 
       displayName: 'Publish artifact in pipeline' 
       inputs: 
-        PathtoPublish: '$(Build.SourcesDirectory)/deploy.sql'
+        PathToPublish: '$(Build.SourcesDirectory)/pipeline-scripts'
         ArtifactName: 'database'
         publishLocation: 'Container' 
 
