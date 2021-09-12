@@ -6,6 +6,13 @@ DROP PROCEDURE IF EXISTS CreateDatabase;
 
 CREATE PROCEDURE CreateDatabase ()
     BEGIN
+        CREATE TABLE IF NOT EXISTS admin(
+            Id            BIGINT AUTO_INCREMENT,
+            Address       VARCHAR(50)     NOT NULL,
+            PRIMARY KEY (Id),
+            UNIQUE admin_address_uq (Address)
+        ) ENGINE=INNODB;
+
         CREATE TABLE IF NOT EXISTS block
         (
             Height     BIGINT UNSIGNED NOT NULL,
