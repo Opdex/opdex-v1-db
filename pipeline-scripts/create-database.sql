@@ -410,7 +410,7 @@ CREATE PROCEDURE CreateDatabase ()
             PRIMARY KEY (Id),
             INDEX transaction_from_ix (`From`),
             UNIQUE transaction_hash_uq (Hash),
-            UNIQUE transaction_new_contract_address_uq (NewContractAddress),
+            INDEX transaction_new_contract_address_ix (NewContractAddress),
             CONSTRAINT transaction_block_block_height_fk
                 FOREIGN KEY (Block)
                 REFERENCES block (Height)
