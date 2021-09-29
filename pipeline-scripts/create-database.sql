@@ -212,6 +212,7 @@ CREATE PROCEDURE CreateDatabase ()
             CONSTRAINT market_snapshot_market_id_market_id_fk
                 FOREIGN KEY (MarketId)
                 REFERENCES market (Id)
+                ON DELETE CASCADE
         ) ENGINE=INNODB;
 
         CREATE TABLE IF NOT EXISTS pool_liquidity
@@ -264,6 +265,7 @@ CREATE PROCEDURE CreateDatabase ()
             CONSTRAINT pool_liquidity_snapshot_liquidity_pool_id_pool_liquidity_id_fk
                 FOREIGN KEY (LiquidityPoolId)
                 REFERENCES pool_liquidity (Id)
+                ON DELETE CASCADE
         ) ENGINE=INNODB;
 
         CREATE TABLE IF NOT EXISTS pool_liquidity_summary
@@ -339,6 +341,7 @@ CREATE PROCEDURE CreateDatabase ()
             CONSTRAINT token_snapshot_token_id_token_id_fk
                 FOREIGN KEY (TokenId)
                 REFERENCES token (Id)
+                ON DELETE CASCADE
         ) ENGINE=INNODB;
 
         CREATE TABLE IF NOT EXISTS address_balance
