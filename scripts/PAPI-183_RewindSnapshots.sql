@@ -14,7 +14,7 @@ CREATE PROCEDURE SnapshotOnDeleteCascade ()
         AND REFERENCED_COLUMN_NAME = 'Id';
 
     IF @marketForeignKeyExists > 0 THEN
-        ALTER TABLE market_snapshot DROP CONSTRAINT market_snapshot_market_id_market_id_fk;
+        ALTER TABLE market_snapshot DROP FOREIGN KEY market_snapshot_market_id_market_id_fk;
     END IF;
 
     -- Recreate market FK
@@ -36,7 +36,7 @@ CREATE PROCEDURE SnapshotOnDeleteCascade ()
         AND REFERENCED_COLUMN_NAME = 'Id';
 
     IF @pool_liquidityForeignKeyExists > 0 THEN
-        ALTER TABLE pool_liquidity_snapshot DROP CONSTRAINT pool_liquidity_snapshot_liquidity_pool_id_pool_liquidity_id_fk;
+        ALTER TABLE pool_liquidity_snapshot DROP FOREIGN KEY pool_liquidity_snapshot_liquidity_pool_id_pool_liquidity_id_fk;
     END IF;
 
     -- Recreate pool_liquidity FK
@@ -58,7 +58,7 @@ CREATE PROCEDURE SnapshotOnDeleteCascade ()
         AND REFERENCED_COLUMN_NAME = 'Id';
 
     IF @tokenForeignKeyExists > 0 THEN
-        ALTER TABLE token_snapshot DROP CONSTRAINT token_snapshot_token_id_token_id_fk;
+        ALTER TABLE token_snapshot DROP FOREIGN KEY token_snapshot_token_id_token_id_fk;
     END IF;
 
     -- Recreate Token FK
