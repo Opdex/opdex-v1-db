@@ -34,7 +34,12 @@ BEGIN
     SELECT COUNT(*) INTO @exists FROM block WHERE Height = rewindHeight;
 
     IF @exists > 0 THEN
-        SELECT DATE_FORMAT(MedianTime, '%Y-%m-%d 00:00:00') INTO @rewindBlockStartOfDay FROM block WHERE Height = rewindHeight;
+        SELECT 
+            DATE_FORMAT(MedianTime, '%Y-%m-%d 00:00:00'), 
+            DATE_FORMAT(MedianTime, '%Y-%m-%d %H:00:00') 
+        INTO @rewindBlockStartOfDay, @rewindBlockStartOfHour
+        FROM block 
+        WHERE Height = rewindHeight;
 
         -- Delete records by CreatedBlock
         -- ----------------------------------
@@ -48,14 +53,14 @@ BEGIN
         DELETE FROM governance WHERE CreatedBlock > rewindHeight;
         DELETE FROM pool_mining WHERE CreatedBlock > rewindHeight;
         DELETE FROM pool_liquidity_summary WHERE CreatedBlock > rewindHeight;
-        DELETE FROM pool_liquidity_snapshot WHERE StartDate >= @rewindBlockStartOfDay;
+        DELETE FROM pool_liquidity_snapshot WHERE StartDate >= @rewindBlockStartOfHour;
         DELETE FROM pool_liquidity WHERE CreatedBlock > rewindHeight;
         -- DELETE FROM token_summary WHERE CreatedBlock > rewindHeight; -- future probability
-        DELETE FROM token_snapshot WHERE TokenId > 1 AND StartDate >= @rewindBlockStartOfDay;
+        DELETE FROM token_snapshot WHERE TokenId > 1 AND StartDate >= @rewindBlockStartOfHour;
         DELETE FROM market_router WHERE CreatedBlock > rewindHeight;
         DELETE FROM market_permission WHERE CreatedBlock > rewindHeight;
         -- DELETE FROM market_summary WHERE CreatedBlock > rewindHeight; -- future probability
-        DELETE FROM market_snapshot WHERE StartDate >= @rewindBlockStartOfDay;
+        DELETE FROM market_snapshot WHERE StartDate >= @rewindBlockStartOfDay; -- only track daily snapshots
         DELETE FROM market WHERE CreatedBlock > rewindHeight;
         DELETE FROM market_deployer WHERE CreatedBlock > rewindHeight;
         DELETE FROM token_distribution WHERE CreatedBlock > rewindHeight;
