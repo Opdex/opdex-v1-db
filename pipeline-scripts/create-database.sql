@@ -63,6 +63,7 @@ CREATE PROCEDURE CreateDatabase ()
         (
             Id            BIGINT AUTO_INCREMENT,
             Address       VARCHAR(50)     NOT NULL,
+            PendingOwner  VARCHAR(50)     NULL,
             Owner         VARCHAR(50)     NOT NULL,
             IsActive      BIT             NOT NULL,
             CreatedBlock  BIGINT UNSIGNED NOT NULL,
@@ -84,6 +85,7 @@ CREATE PROCEDURE CreateDatabase ()
             Address          VARCHAR(50)     NOT NULL,
             DeployerId       BIGINT          NOT NULL,
             StakingTokenId   BIGINT          NULL,
+            PendingOwner     VARCHAR(50)     NULL,
             Owner            VARCHAR(50)     NOT NULL,
             AuthPoolCreators BIT             NOT NULL,
             AuthTraders      BIT             NOT NULL,
@@ -513,6 +515,7 @@ CREATE PROCEDURE CreateDatabase ()
             Id                  BIGINT AUTO_INCREMENT,
             TokenId             BIGINT          NOT NULL,
             Address             VARCHAR(50)     NOT NULL,
+            PendingOwner        VARCHAR(50)     NULL,
             Owner               VARCHAR(50)     NOT NULL,
             Genesis             BIGINT UNSIGNED NOT NULL,
             UnassignedSupply    VARCHAR(78)     NOT NULL,
