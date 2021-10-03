@@ -7,8 +7,8 @@ DROP PROCEDURE IF EXISTS CreateDatabase;
 CREATE PROCEDURE CreateDatabase ()
     BEGIN
         CREATE TABLE IF NOT EXISTS admin(
-            Id            BIGINT AUTO_INCREMENT,
-            Address       VARCHAR(50)     NOT NULL,
+            Id      BIGINT UNSIGNED AUTO_INCREMENT,
+            Address VARCHAR(50) NOT NULL,
             PRIMARY KEY (Id),
             UNIQUE admin_address_uq (Address)
         ) ENGINE=INNODB;
@@ -26,13 +26,13 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS token
         (
-            Id            BIGINT AUTO_INCREMENT,
+            Id            BIGINT UNSIGNED AUTO_INCREMENT,
             Address       VARCHAR(50)     NOT NULL,
             IsLpt         BIT DEFAULT 0   NOT NULL,
             Symbol        VARCHAR(20)     NOT NULL,
             Name          VARCHAR(50)     NOT NULL,
             Decimals      SMALLINT        NOT NULL,
-            Sats          BIGINT          NOT NULL,
+            Sats          BIGINT UNSIGNED NOT NULL,
             TotalSupply   VARCHAR(78)     NOT NULL,
             CreatedBlock  BIGINT UNSIGNED NOT NULL,
             ModifiedBlock BIGINT UNSIGNED NOT NULL,
@@ -51,7 +51,7 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS index_lock
         (
-            Id           BIGINT,
+            Id           BIGINT UNSIGNED,
             Available    BIT            NOT NULL,
             Locked       BIT            NOT NULL,
             InstanceId   VARCHAR(40)    NULL,
@@ -61,7 +61,7 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS market_deployer
         (
-            Id            BIGINT AUTO_INCREMENT,
+            Id            BIGINT UNSIGNED AUTO_INCREMENT,
             Address       VARCHAR(50)     NOT NULL,
             PendingOwner  VARCHAR(50)     NULL,
             Owner         VARCHAR(50)     NOT NULL,
@@ -81,10 +81,10 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS market
         (
-            Id               BIGINT AUTO_INCREMENT,
+            Id               BIGINT UNSIGNED AUTO_INCREMENT,
             Address          VARCHAR(50)     NOT NULL,
-            DeployerId       BIGINT          NOT NULL,
-            StakingTokenId   BIGINT          NULL,
+            DeployerId       BIGINT UNSIGNED NOT NULL,
+            StakingTokenId   BIGINT UNSIGNED NULL,
             PendingOwner     VARCHAR(50)     NULL,
             Owner            VARCHAR(50)     NOT NULL,
             AuthPoolCreators BIT             NOT NULL,
@@ -118,8 +118,8 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS market_permission
         (
-            Id            BIGINT AUTO_INCREMENT,
-            MarketId      BIGINT          NOT NULL,
+            Id            BIGINT UNSIGNED AUTO_INCREMENT,
+            MarketId      BIGINT UNSIGNED NOT NULL,
             User          VARCHAR(50)     NOT NULL,
             Permission    INT             NOT NULL,
             IsAuthorized  BIT             NOT NULL,
@@ -144,9 +144,9 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS market_router
         (
-            Id            BIGINT AUTO_INCREMENT,
+            Id            BIGINT UNSIGNED AUTO_INCREMENT,
             Address       VARCHAR(50)     NOT NULL,
-            MarketId      BIGINT          NOT NULL,
+            MarketId      BIGINT UNSIGNED NOT NULL,
             IsActive      BIT             NOT NULL,
             ModifiedBlock BIGINT UNSIGNED NOT NULL,
             CreatedBlock  BIGINT UNSIGNED NOT NULL,
@@ -166,8 +166,8 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS token_distribution
         (
-            Id                           BIGINT AUTO_INCREMENT,
-            TokenId                      BIGINT          NOT NULL,
+            Id                           BIGINT UNSIGNED AUTO_INCREMENT,
+            TokenId                      BIGINT UNSIGNED NOT NULL,
             VaultDistribution            VARCHAR(78)     NULL,
             MiningGovernanceDistribution VARCHAR(78)     NULL,
             PeriodIndex                  INT             NOT NULL,
@@ -196,13 +196,13 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS market_snapshot
         (
-            Id             BIGINT AUTO_INCREMENT,
-            MarketId       BIGINT   NOT NULL,
-            SnapshotTypeId SMALLINT NOT NULL,
-            StartDate      DATETIME NOT NULL,
-            EndDate        DATETIME NOT NULL,
-            ModifiedDate   DATETIME NOT NULL,
-            Details        JSON     NOT NULL,
+            Id             BIGINT UNSIGNED AUTO_INCREMENT,
+            MarketId       BIGINT UNSIGNED NOT NULL,
+            SnapshotTypeId SMALLINT        NOT NULL,
+            StartDate      DATETIME        NOT NULL,
+            EndDate        DATETIME        NOT NULL,
+            ModifiedDate   DATETIME        NOT NULL,
+            Details        JSON            NOT NULL,
             PRIMARY KEY (Id),
             CHECK (JSON_valid(`Details`)),
             INDEX market_snapshot_end_date_ix (EndDate),
@@ -219,10 +219,10 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS pool_liquidity
         (
-            Id            BIGINT AUTO_INCREMENT,
-            SrcTokenId    BIGINT          NOT NULL,
-            LpTokenId     BIGINT          NOT NULL,
-            MarketId      BIGINT          NOT NULL,
+            Id            BIGINT UNSIGNED AUTO_INCREMENT,
+            SrcTokenId    BIGINT UNSIGNED NOT NULL,
+            LpTokenId     BIGINT UNSIGNED NOT NULL,
+            MarketId      BIGINT UNSIGNED NOT NULL,
             Address       VARCHAR(50)     NOT NULL,
             CreatedBlock  BIGINT UNSIGNED NOT NULL,
             ModifiedBlock BIGINT UNSIGNED NOT NULL,
@@ -248,14 +248,14 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS pool_liquidity_snapshot
         (
-            Id               BIGINT AUTO_INCREMENT,
-            LiquidityPoolId  BIGINT   NOT NULL,
-            SnapshotTypeId   SMALLINT NOT NULL,
-            TransactionCount INT      NOT NULL,
-            StartDate        DATETIME NULL,
-            EndDate          DATETIME NULL,
-            ModifiedDate     DATETIME NULL,
-            Details          JSON     NOT NULL,
+            Id               BIGINT UNSIGNED AUTO_INCREMENT,
+            LiquidityPoolId  BIGINT UNSIGNED NOT NULL,
+            SnapshotTypeId   SMALLINT        NOT NULL,
+            TransactionCount INT             NOT NULL,
+            StartDate        DATETIME        NULL,
+            EndDate          DATETIME        NULL,
+            ModifiedDate     DATETIME        NULL,
+            Details          JSON            NOT NULL,
             PRIMARY KEY (Id),
             CHECK (JSON_valid(`Details`)),
             INDEX pool_liquidity_snapshot_end_date_ix (EndDate),
@@ -272,8 +272,8 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS pool_liquidity_summary
         (
-            Id               BIGINT             AUTO_INCREMENT,
-            LiquidityPoolId  BIGINT             NOT NULL,
+            Id               BIGINT UNSIGNED AUTO_INCREMENT,
+            LiquidityPoolId  BIGINT UNSIGNED    NOT NULL,
             LiquidityUsd     DECIMAL(30, 8)     NOT NULL,
             VolumeUsd        DECIMAL(30, 8)     NOT NULL,
             StakingWeight    BIGINT UNSIGNED    NOT NULL,
@@ -300,8 +300,8 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS pool_mining
         (
-            Id                   BIGINT AUTO_INCREMENT,
-            LiquidityPoolId      BIGINT                  NOT NULL,
+            Id                   BIGINT UNSIGNED AUTO_INCREMENT,
+            LiquidityPoolId      BIGINT UNSIGNED         NOT NULL,
             Address              VARCHAR(50)             NOT NULL,
             RewardPerBlock       VARCHAR(78) DEFAULT '0' NOT NULL,
             RewardPerLpt         VARCHAR(78) DEFAULT '0' NOT NULL,
@@ -323,14 +323,14 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS token_snapshot
         (
-            Id             BIGINT AUTO_INCREMENT,
-            TokenId        BIGINT   NOT NULL,
-            MarketId       BIGINT   NOT NULL,
-            SnapshotTypeId SMALLINT NOT NULL,
-            StartDate      DATETIME NOT NULL,
-            EndDate        DATETIME NOT NULL,
-            ModifiedDate   DATETIME NOT NULL,
-            Details        JSON     NOT NULL,
+            Id             BIGINT UNSIGNED AUTO_INCREMENT,
+            TokenId        BIGINT UNSIGNED NOT NULL,
+            MarketId       BIGINT UNSIGNED NOT NULL,
+            SnapshotTypeId SMALLINT        NOT NULL,
+            StartDate      DATETIME        NOT NULL,
+            EndDate        DATETIME        NOT NULL,
+            ModifiedDate   DATETIME        NOT NULL,
+            Details        JSON            NOT NULL,
             PRIMARY KEY (Id),
             CHECK (JSON_valid(`Details`)),
             INDEX token_snapshot_end_date_ix (EndDate),
@@ -348,15 +348,15 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS address_balance
         (
-            Id              BIGINT AUTO_INCREMENT,
-            TokenId         BIGINT          NOT NULL,
+            Id              BIGINT UNSIGNED AUTO_INCREMENT,
+            TokenId         BIGINT UNSIGNED NOT NULL,
             Owner           VARCHAR(50)     NOT NULL,
             Balance         VARCHAR(78)     NOT NULL,
             CreatedBlock    BIGINT UNSIGNED NOT NULL,
             ModifiedBlock   BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
             UNIQUE address_balance_owner_token_id_uq (Owner, TokenId),
-            CONSTRAINT address_balance_token_id_fk
+            CONSTRAINT address_balance_token_id_token_id_fk
                 FOREIGN KEY (TokenId)
                 REFERENCES token (Id),
             CONSTRAINT address_balance_created_block_block_height_fk
@@ -369,15 +369,15 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS address_mining
         (
-            Id            BIGINT AUTO_INCREMENT,
-            MiningPoolId  BIGINT          NOT NULL,
+            Id            BIGINT UNSIGNED AUTO_INCREMENT,
+            MiningPoolId  BIGINT UNSIGNED NOT NULL,
             Owner         VARCHAR(50)     NOT NULL,
             Balance       VARCHAR(78)     NULL,
             CreatedBlock  BIGINT UNSIGNED NOT NULL,
             ModifiedBlock BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
             UNIQUE address_mining_owner_mining_pool_id_uq (Owner, MiningPoolId),
-            CONSTRAINT address_mining_pool_mining_id_fk
+            CONSTRAINT address_mining_mining_pool_id_pool_mining_id_fk
                 FOREIGN KEY (MiningPoolId)
                 REFERENCES pool_mining (Id),
             CONSTRAINT address_mining_created_block_block_height_fk
@@ -390,15 +390,15 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS address_staking
         (
-            Id              BIGINT AUTO_INCREMENT,
-            LiquidityPoolId BIGINT          NOT NULL,
+            Id              BIGINT UNSIGNED AUTO_INCREMENT,
+            LiquidityPoolId BIGINT UNSIGNED NOT NULL,
             Owner           VARCHAR(50)     NOT NULL,
             Weight          VARCHAR(78)     NOT NULL,
             CreatedBlock    BIGINT UNSIGNED NOT NULL,
             ModifiedBlock   BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
             UNIQUE address_staking_owner_liquidity_pool_id_uq (Owner, LiquidityPoolId),
-            CONSTRAINT address_staking_pool_liquidity_id_fk
+            CONSTRAINT address_staking_liquidity_pool_id_pool_liquidity_id_fk
                 FOREIGN KEY (LiquidityPoolId)
                 REFERENCES pool_liquidity (Id),
             CONSTRAINT address_staking_created_block_block_height_fk
@@ -411,7 +411,7 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS transaction
         (
-            Id                 BIGINT AUTO_INCREMENT,
+            Id                 BIGINT UNSIGNED AUTO_INCREMENT,
             `From`             VARCHAR(50)      NOT NULL,
             `To`               VARCHAR(50)      NULL,
             NewContractAddress VARCHAR(50)      NULL,
@@ -437,12 +437,12 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS transaction_log
         (
-            Id            BIGINT AUTO_INCREMENT,
-            TransactionId BIGINT                       NOT NULL,
-            LogTypeId     SMALLINT                     NOT NULL,
-            SortOrder     SMALLINT                     NOT NULL,
-            Contract      VARCHAR(50)                  NOT NULL,
-            Details       JSON                             NULL,
+            Id            BIGINT UNSIGNED AUTO_INCREMENT,
+            TransactionId BIGINT UNSIGNED NOT NULL,
+            LogTypeId     SMALLINT        NOT NULL,
+            SortOrder     SMALLINT        NOT NULL,
+            Contract      VARCHAR(50)     NOT NULL,
+            Details       JSON            NULL,
             PRIMARY KEY (Id),
             CHECK (JSON_valid(`Details`)),
             INDEX transaction_log_contract_ix (Contract),
@@ -457,9 +457,9 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS governance
         (
-            Id                  BIGINT AUTO_INCREMENT,
+            Id                  BIGINT UNSIGNED AUTO_INCREMENT,
             Address             VARCHAR(50)              NOT NULL,
-            TokenId             BIGINT                   NOT NULL,
+            TokenId             BIGINT UNSIGNED          NOT NULL,
             NominationPeriodEnd BIGINT UNSIGNED          NOT NULL,
             MiningDuration      BIGINT UNSIGNED          NOT NULL,
             MiningPoolsFunded   INT UNSIGNED DEFAULT 0   NOT NULL,
@@ -481,10 +481,10 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS governance_nomination
         (
-            Id              BIGINT AUTO_INCREMENT,
-            GovernanceId    BIGINT          NOT NULL,
-            LiquidityPoolId BIGINT          NOT NULL,
-            MiningPoolId    BIGINT          NOT NULL,
+            Id              BIGINT UNSIGNED AUTO_INCREMENT,
+            GovernanceId    BIGINT UNSIGNED NOT NULL,
+            LiquidityPoolId BIGINT UNSIGNED NOT NULL,
+            MiningPoolId    BIGINT UNSIGNED NOT NULL,
             IsNominated     BIT             NULL,
             Weight          VARCHAR(78)     NOT NULL,
             CreatedBlock    BIGINT UNSIGNED NOT NULL,
@@ -512,8 +512,8 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS vault
         (
-            Id                  BIGINT AUTO_INCREMENT,
-            TokenId             BIGINT          NOT NULL,
+            Id                  BIGINT UNSIGNED AUTO_INCREMENT,
+            TokenId             BIGINT UNSIGNED NOT NULL,
             Address             VARCHAR(50)     NOT NULL,
             PendingOwner        VARCHAR(50)     NULL,
             Owner               VARCHAR(50)     NOT NULL,
@@ -536,8 +536,8 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS vault_certificate
         (
-            Id            BIGINT AUTO_INCREMENT,
-            VaultId       BIGINT          NOT NULL,
+            Id            BIGINT UNSIGNED AUTO_INCREMENT,
+            VaultId       BIGINT UNSIGNED NOT NULL,
             Owner         VARCHAR(50)     NOT NULL,
             Amount        VARCHAR(78)     NOT NULL,
             VestedBlock   BIGINT UNSIGNED NOT NULL,
