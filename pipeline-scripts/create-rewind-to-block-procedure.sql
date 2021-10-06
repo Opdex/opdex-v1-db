@@ -61,6 +61,7 @@ BEGIN
         DELETE FROM market_permission WHERE CreatedBlock > rewindHeight;
         -- DELETE FROM market_summary WHERE CreatedBlock > rewindHeight; -- future probability
         DELETE FROM market_snapshot WHERE StartDate >= @rewindBlockStartOfDay; -- only track daily snapshots
+        DELETE FROM market_token WHERE CreatedBlock > rewindHeight;
         DELETE FROM market WHERE CreatedBlock > rewindHeight;
         DELETE FROM market_deployer WHERE CreatedBlock > rewindHeight;
         DELETE FROM token_distribution WHERE CreatedBlock > rewindHeight;
