@@ -360,7 +360,7 @@ CREATE PROCEDURE CreateDatabase ()
             CHECK (JSON_valid(`Details`)),
             INDEX token_snapshot_end_date_ix (EndDate),
             INDEX token_snapshot_start_date_ix (StartDate),
-            INDEX token_snapshot_market_id_ix (StartDate), -- No FK, CRS uses MarketId = 0
+            INDEX token_snapshot_market_id_ix (MarketId), -- No FK, CRS uses MarketId = 0
             UNIQUE token_snapshot_token_id_start_date_end_date_uq (MarketId, TokenId, StartDate, EndDate),
             CONSTRAINT token_snapshot_snapshot_type_id_snapshot_type_id_fk
                 FOREIGN KEY (SnapshotTypeId)
@@ -369,6 +369,31 @@ CREATE PROCEDURE CreateDatabase ()
                 FOREIGN KEY (TokenId)
                 REFERENCES token (Id)
                 ON DELETE CASCADE
+        ) ENGINE=INNODB;
+
+        CREATE TABLE IF NOT EXISTS token_summary
+        (
+            Id              BIGINT UNSIGNED AUTO_INCREMENT,
+            MarketId        BIGINT UNSIGNED NOT NULL,
+            TokenId         BIGINT UNSIGNED NOT NULL,
+            DailyChangeUsd  DECIMAL(30, 8)  NOT NULL,
+            PriceUsd        DECIMAL(30, 8)  NOT NULL,
+            ModifiedBlock   BIGINT UNSIGNED NOT NULL,
+            CreatedBlock    BIGINT UNSIGNED NOT NULL,
+            PRIMARY KEY (Id),
+            INDEX token_summary_market_id_ix (MarketId), -- No FK, CRS uses MarketId = 0
+            INDEX token_summary_daily_change_usd_ix (DailyChangeUsd),
+            INDEX token_summary_price_usd_ix (PriceUsd),
+            CONSTRAINT token_summary_token_id_token_id_fk
+                FOREIGN KEY (TokenId)
+                REFERENCES token (Id)
+                ON DELETE CASCADE,
+            CONSTRAINT token_summary_created_block_block_height_fk
+                FOREIGN KEY (CreatedBlock)
+                REFERENCES block (Height),
+            CONSTRAINT token_summary_modified_block_block_height_fk
+                FOREIGN KEY (ModifiedBlock)
+                REFERENCES block (Height)
         ) ENGINE=INNODB;
 
         CREATE TABLE IF NOT EXISTS token_attribute_type
