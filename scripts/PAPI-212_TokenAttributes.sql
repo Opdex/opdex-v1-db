@@ -1,4 +1,4 @@
--- Creates the market_token table and backfills it with data from existing liquidity pools
+-- Creates the token_attribute_type and token_attribute tables
 
 DELIMITER //
 
