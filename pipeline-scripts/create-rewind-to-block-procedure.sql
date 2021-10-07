@@ -55,7 +55,7 @@ BEGIN
         DELETE FROM pool_liquidity_summary WHERE CreatedBlock > rewindHeight;
         DELETE FROM pool_liquidity_snapshot WHERE StartDate >= @rewindBlockStartOfHour;
         DELETE FROM pool_liquidity WHERE CreatedBlock > rewindHeight;
-        DELETE FROM token_summary WHERE TokenId > 1 AND CreatedBlock > rewindHeight; -- future probability
+        DELETE FROM token_summary WHERE CreatedBlock > rewindHeight;
         DELETE FROM token_snapshot WHERE TokenId > 1 AND StartDate >= @rewindBlockStartOfHour;
         DELETE FROM market_router WHERE CreatedBlock > rewindHeight;
         DELETE FROM market_permission WHERE CreatedBlock > rewindHeight;
