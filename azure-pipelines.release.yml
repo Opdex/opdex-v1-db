@@ -6,7 +6,7 @@ jobs:
   - deployment: ${{ parameters.environment }}
     displayName: 'Deploy Resources'
     variables:
-      - group: ${{ parameters.environment }} # points to variable group in Azure DevOps
+      - group: ${{ parameters.environment }}-db # points to variable group in Azure DevOps
     environment: ${{ parameters.environment }} # points to environments in Azure DevOps
     strategy:
       runOnce:

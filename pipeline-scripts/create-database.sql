@@ -335,7 +335,7 @@ CREATE PROCEDURE CreateDatabase ()
             CHECK (JSON_valid(`Details`)),
             INDEX token_snapshot_end_date_ix (EndDate),
             INDEX token_snapshot_start_date_ix (StartDate),
-            INDEX token_snapshot_market_id_ix (StartDate), -- No FK, CRS uses MarketId = 0
+            INDEX token_snapshot_market_id_ix (MarketId), -- No FK, CRS uses MarketId = 0
             UNIQUE token_snapshot_token_id_start_date_end_date_uq (MarketId, TokenId, StartDate, EndDate),
             CONSTRAINT token_snapshot_snapshot_type_id_snapshot_type_id_fk
                 FOREIGN KEY (SnapshotTypeId)
@@ -344,6 +344,53 @@ CREATE PROCEDURE CreateDatabase ()
                 FOREIGN KEY (TokenId)
                 REFERENCES token (Id)
                 ON DELETE CASCADE
+        ) ENGINE=INNODB;
+
+        CREATE TABLE IF NOT EXISTS token_summary
+        (
+            Id              BIGINT UNSIGNED AUTO_INCREMENT,
+            MarketId        BIGINT UNSIGNED NOT NULL,
+            TokenId         BIGINT UNSIGNED NOT NULL,
+            DailyChangeUsd  DECIMAL(30, 8)  NOT NULL,
+            PriceUsd        DECIMAL(30, 8)  NOT NULL,
+            CreatedBlock    BIGINT UNSIGNED NOT NULL,
+            ModifiedBlock   BIGINT UNSIGNED NOT NULL,
+            PRIMARY KEY (Id),
+            INDEX token_summary_market_id_ix (MarketId), -- No FK, CRS uses MarketId = 0
+            INDEX token_summary_daily_change_usd_ix (DailyChangeUsd),
+            INDEX token_summary_price_usd_ix (PriceUsd),
+            CONSTRAINT token_summary_token_id_token_id_fk
+                FOREIGN KEY (TokenId)
+                REFERENCES token (Id)
+                ON DELETE CASCADE,
+            CONSTRAINT token_summary_created_block_block_height_fk
+                FOREIGN KEY (CreatedBlock)
+                REFERENCES block (Height),
+            CONSTRAINT token_summary_modified_block_block_height_fk
+                FOREIGN KEY (ModifiedBlock)
+                REFERENCES block (Height)
+        ) ENGINE=INNODB;
+
+        CREATE TABLE IF NOT EXISTS token_attribute_type
+        (
+            Id            SMALLINT UNSIGNED NOT NULL,
+            AttributeType VARCHAR(50)       NOT NULL,
+            PRIMARY KEY (Id)
+        ) ENGINE=INNODB;
+
+        CREATE TABLE IF NOT EXISTS token_attribute
+        (
+            Id              SMALLINT UNSIGNED NOT NULL,
+            TokenId         BIGINT UNSIGNED   NOT NULL,
+            AttributeTypeId SMALLINT UNSIGNED NOT NULL,
+            PRIMARY KEY (Id),
+            CONSTRAINT token_attribute_token_id_token_id_fk
+                FOREIGN KEY (TokenId)
+                REFERENCES token (Id)
+                ON DELETE CASCADE,
+            CONSTRAINT token_attribute_attribute_type_id_token_attribute_type_id_fk
+                FOREIGN KEY (AttributeTypeId)
+                REFERENCES token_attribute_type (Id)
         ) ENGINE=INNODB;
 
         CREATE TABLE IF NOT EXISTS address_balance
@@ -558,6 +605,37 @@ CREATE PROCEDURE CreateDatabase ()
                 REFERENCES block (Height)
         ) ENGINE=INNODB;
 
+        CREATE TABLE IF NOT EXISTS market_token_blacklist
+        (
+            Id        BIGINT UNSIGNED AUTO_INCREMENT,
+            MarketId  BIGINT UNSIGNED NOT NULL,
+            TokenId   BIGINT UNSIGNED NOT NULL,
+            PRIMARY KEY (Id),
+            CONSTRAINT market_token_blacklist_market_id_market_id_fk
+                FOREIGN KEY (MarketId)
+                REFERENCES market (Id)
+                ON DELETE CASCADE,
+            CONSTRAINT market_token_blacklist_token_id_token_id_fk
+                FOREIGN KEY (TokenId)
+                REFERENCES token (Id)
+                ON DELETE CASCADE
+        ) ENGINE=INNODB;
+
+        CREATE TABLE IF NOT EXISTS market_token_attribute_blacklist
+        (
+            Id                    BIGINT UNSIGNED AUTO_INCREMENT,
+            MarketId              BIGINT UNSIGNED   NOT NULL,
+            TokenAttributeTypeId  SMALLINT UNSIGNED NOT NULL,
+            PRIMARY KEY (Id),
+            CONSTRAINT market_tablist_market_id_market_id_fk
+                FOREIGN KEY (MarketId)
+                REFERENCES market (Id)
+                ON DELETE CASCADE,
+            CONSTRAINT market_tablist_tab_type_id_token_attribute_type_id_fk
+                FOREIGN KEY (TokenAttributeTypeId)
+                REFERENCES token_attribute_type (Id)
+        ) ENGINE=INNODB;
+
         -- --------
         -- --------
         -- Populate Lookup Type Tables
@@ -618,6 +696,13 @@ CREATE PROCEDURE CreateDatabase ()
             (2, 'Trade'),
             (3, 'Provide'),
             (4, 'SetPermissions');
+
+        INSERT INGORE INTO token_attribute_type(Id, AttributeType)
+        VALUES
+            (1, 'Mintable'),
+            (2, 'Burnable'),
+            (3, 'Staking'),
+            (4, 'Security');
     END;
 //
 
