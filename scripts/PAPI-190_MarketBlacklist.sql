@@ -14,12 +14,17 @@ CREATE PROCEDURE MarketBlacklist ()
     IF @tokenBlacklistExists = 0 THEN
         CREATE TABLE IF NOT EXISTS market_token_blacklist
         (
-            Id             BIGINT UNSIGNED AUTO_INCREMENT,
-            MarketTokenId  BIGINT UNSIGNED NOT NULL,
+            Id        BIGINT UNSIGNED AUTO_INCREMENT,
+            MarketId  BIGINT UNSIGNED NOT NULL,
+            TokenId   BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
-            CONSTRAINT market_token_blacklist_market_token_id_market_token_id_fk
-                FOREIGN KEY (MarketTokenId)
-                REFERENCES market_token (Id)
+            CONSTRAINT market_token_blacklist_market_id_market_id_fk
+                FOREIGN KEY (MarketId)
+                REFERENCES market (Id)
+                ON DELETE CASCADE,
+            CONSTRAINT market_token_blacklist_token_id_token_id_fk
+                FOREIGN KEY (TokenId)
+                REFERENCES token (Id)
                 ON DELETE CASCADE
         ) ENGINE=INNODB;
     END IF;
@@ -33,8 +38,8 @@ CREATE PROCEDURE MarketBlacklist ()
         CREATE TABLE IF NOT EXISTS market_token_attribute_blacklist
         (
             Id                    BIGINT UNSIGNED AUTO_INCREMENT,
-            MarketId              BIGINT UNSIGNED NOT NULL,
-            TokenAttributeTypeId  SMALLINT        NOT NULL,
+            MarketId              BIGINT UNSIGNED   NOT NULL,
+            TokenAttributeTypeId  SMALLINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
             CONSTRAINT market_tablist_market_id_market_id_fk
                 FOREIGN KEY (MarketId)

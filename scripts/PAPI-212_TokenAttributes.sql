@@ -15,8 +15,8 @@ CREATE PROCEDURE CreateTokenAttributes ()
     IF @typeExists = 0 THEN
         CREATE TABLE IF NOT EXISTS token_attribute_type
         (
-            Id            SMALLINT    NOT NULL,
-            AttributeType VARCHAR(50) NOT NULL,
+            Id            SMALLINT UNSIGNED NOT NULL,
+            AttributeType VARCHAR(50)       NOT NULL,
             PRIMARY KEY (Id)
         ) ENGINE=INNODB;
 
@@ -36,9 +36,9 @@ CREATE PROCEDURE CreateTokenAttributes ()
     IF @typeExists = 0 THEN
         CREATE TABLE IF NOT EXISTS token_attribute
         (
-            Id              SMALLINT         NOT NULL,
-            TokenId         BIGINT UNSIGNED  NOT NULL,
-            AttributeTypeId SMALLINT         NOT NULL,
+            Id              SMALLINT UNSIGNED NOT NULL,
+            TokenId         BIGINT UNSIGNED   NOT NULL,
+            AttributeTypeId SMALLINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
             CONSTRAINT token_attribute_token_id_token_id_fk
                 FOREIGN KEY (TokenId)

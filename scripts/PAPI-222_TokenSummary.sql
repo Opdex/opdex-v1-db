@@ -20,8 +20,8 @@ CREATE PROCEDURE CreateTokenSummary()
             TokenId         BIGINT UNSIGNED NOT NULL,
             DailyChangeUsd  DECIMAL(30, 8)  NOT NULL,
             PriceUsd        DECIMAL(30, 8)  NOT NULL,
-            ModifiedBlock   BIGINT UNSIGNED NOT NULL,
             CreatedBlock    BIGINT UNSIGNED NOT NULL,
+            ModifiedBlock   BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
             INDEX token_summary_market_id_ix (MarketId), -- No FK, CRS uses MarketId = 0
             INDEX token_summary_daily_change_usd_ix (DailyChangeUsd),
