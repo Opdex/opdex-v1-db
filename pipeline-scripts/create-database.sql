@@ -697,7 +697,7 @@ CREATE PROCEDURE CreateDatabase ()
             (3, 'Provide'),
             (4, 'SetPermissions');
 
-        INSERT INGORE INTO token_attribute_type(Id, AttributeType)
+        INSERT IGNORE INTO token_attribute_type(Id, AttributeType)
         VALUES
             (1, 'Mintable'),
             (2, 'Burnable'),
