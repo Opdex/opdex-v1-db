@@ -55,7 +55,7 @@ BEGIN
         DELETE FROM pool_liquidity_summary WHERE CreatedBlock > rewindHeight;
         DELETE FROM pool_liquidity_snapshot WHERE StartDate >= @rewindBlockStartOfHour;
         DELETE FROM pool_liquidity WHERE CreatedBlock > rewindHeight;
-        -- DELETE FROM token_summary WHERE CreatedBlock > rewindHeight; -- future probability
+        DELETE FROM token_summary WHERE TokenId > 1 AND CreatedBlock > rewindHeight; -- future probability
         DELETE FROM token_snapshot WHERE TokenId > 1 AND StartDate >= @rewindBlockStartOfHour;
         DELETE FROM market_router WHERE CreatedBlock > rewindHeight;
         DELETE FROM market_permission WHERE CreatedBlock > rewindHeight;
@@ -79,7 +79,7 @@ BEGIN
         UPDATE pool_mining SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE pool_liquidity_summary SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE pool_liquidity SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
-        -- UPDATE token_summary SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight; -- future probability
+        UPDATE token_summary SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE market_router SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE market_permission SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         -- UPDATE market_summary SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight; -- future probability
