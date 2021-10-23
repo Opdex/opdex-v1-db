@@ -8,7 +8,7 @@ CREATE PROCEDURE MarketTokenSummaryNameChange ()
         AND TABLE_NAME='token_summary'
         AND column_name='DailyChangeUsd';
 
-    IF @exists = 0 THEN
+    IF @exists THEN
         ALTER TABLE token_summary RENAME COLUMN DailyChangeUsd TO DailyPriceChangePercent;
         ALTER TABLE token_summary RENAME INDEX token_summary_daily_change_usd_ix TO token_summary_daily_price_change_percent_ix;
     END IF;
