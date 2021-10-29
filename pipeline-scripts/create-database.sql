@@ -84,7 +84,7 @@ CREATE PROCEDURE CreateDatabase ()
             Id               BIGINT UNSIGNED AUTO_INCREMENT,
             Address          VARCHAR(50)     NOT NULL,
             DeployerId       BIGINT UNSIGNED NOT NULL,
-            StakingTokenId   BIGINT UNSIGNED NULL,
+            StakingTokenId   BIGINT UNSIGNED NOT NULL,
             PendingOwner     VARCHAR(50)     NULL,
             Owner            VARCHAR(50)     NOT NULL,
             AuthPoolCreators BIT             NOT NULL,
@@ -224,11 +224,13 @@ CREATE PROCEDURE CreateDatabase ()
             LpTokenId     BIGINT UNSIGNED NOT NULL,
             MarketId      BIGINT UNSIGNED NOT NULL,
             Address       VARCHAR(50)     NOT NULL,
+            Name          VARCHAR(50)     NOT NULL,
             CreatedBlock  BIGINT UNSIGNED NOT NULL,
             ModifiedBlock BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
             UNIQUE pool_liquidity_address_uq (Address),
             UNIQUE pool_liquidity_market_id_token_id_uq (MarketId, SrcTokenId),
+            INDEX pool_liquidity_name_ix (Name),
             CONSTRAINT pool_liquidity_market_id_market_id_fk
                 FOREIGN KEY (MarketId)
                 REFERENCES market (Id),
