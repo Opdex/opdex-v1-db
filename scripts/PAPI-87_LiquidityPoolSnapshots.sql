@@ -4,29 +4,29 @@ DELIMITER //
 
 CREATE PROCEDURE BackFillPoolSnapshotOHLC ()
 BEGIN
-	DECLARE finished INTEGER DEFAULT 0;
-	DECLARE Id bigint unsigned;
+    DECLARE finished INTEGER DEFAULT 0;
+    DECLARE Id bigint unsigned;
     DECLARE Details JSON;
 
-	-- declare cursor
-	DEClARE snapshotCursor
-		CURSOR FOR
-			SELECT * FROM pool_liquidity_snapshot WHERE JSON_EXTRACT(Details, '$.reserves.usd.close') IS NULL;
+    -- declare cursor
+    DEClARE snapshotCursor
+        CURSOR FOR
+            SELECT * FROM pool_liquidity_snapshot WHERE JSON_EXTRACT(Details, '$.reserves.usd.close') IS NULL;
 
-	-- declare NOT FOUND handler
-	DECLARE CONTINUE HANDLER
+    -- declare NOT FOUND handler
+    DECLARE CONTINUE HANDLER
         FOR NOT FOUND SET finished = 1;
 
-	OPEN snapshotCursor;
+    OPEN snapshotCursor;
 
-	getSnapshot: LOOP
-		FETCH snapshotCursor INTO Id, Details;
+    getSnapshot: LOOP
+        FETCH snapshotCursor INTO Id, Details;
 
-		IF finished = 1 THEN
-			LEAVE getSnapshot;
-		END IF;
+        IF finished = 1 THEN
+            LEAVE getSnapshot;
+        END IF;
 
-		-- Build new JSON and update record by Id with new JSON
+        -- Build new JSON and update record by Id with new JSON
         SELECT JSON_MERGE_PRESERVE(
             JSON_OBJECT('cost', JSON_MERGE_PRESERVE(
                 JSON_OBJECT('crsPerSrc', JSON_MERGE_PRESERVE(
@@ -96,9 +96,9 @@ BEGIN
             )),
         ) INTO @UpdatedDetails;
 
-		UPDATE pool_liquidity_snapshot SET Details = @UpdatedDetails WHERE Id = @Id;
-	END LOOP getSnapshot;
-	CLOSE snapshotCursor;
+        UPDATE pool_liquidity_snapshot SET Details = @UpdatedDetails WHERE Id = @Id;
+    END LOOP getSnapshot;
+    CLOSE snapshotCursor;
 
 END //
 
