@@ -47,7 +47,7 @@ BEGIN
             JSON_OBJECT('volume', JSON_MERGE_PRESERVE(
                                     JSON_OBJECT('crs', JSON_EXTRACT(@Details, '$.volume.crs')),
                                     JSON_OBJECT('src', JSON_EXTRACT(@Details, '$.volume.src')),
-                                    JSON_OBJECT('usd', JSON_EXTRACT(@Details, '$.volume.usd')),
+                                    JSON_OBJECT('usd', JSON_EXTRACT(@Details, '$.volume.usd'))
                                   )
             ),
             JSON_OBJECT('rewards', JSON_MERGE_PRESERVE(
@@ -93,7 +93,7 @@ BEGIN
                                             JSON_OBJECT('close', JSON_EXTRACT(@Details, '$.reserves.usd'))
                                         )
                 )
-            )),
+            ))
         ) INTO @UpdatedDetails;
 
         UPDATE pool_liquidity_snapshot SET Details = @UpdatedDetails WHERE Id = @Id;
