@@ -274,20 +274,24 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS pool_liquidity_summary
         (
-            Id               BIGINT UNSIGNED AUTO_INCREMENT,
-            LiquidityPoolId  BIGINT UNSIGNED    NOT NULL,
-            LiquidityUsd     DECIMAL(30, 8)     NOT NULL,
-            VolumeUsd        DECIMAL(30, 8)     NOT NULL,
-            StakingWeight    BIGINT UNSIGNED    NOT NULL,
-            LockedCrs        BIGINT UNSIGNED    NOT NULL,
-            LockedSrc        VARCHAR(78)        NOT NULL,
-            CreatedBlock     BIGINT UNSIGNED    NOT NULL,
-            ModifiedBlock    BIGINT UNSIGNED    NOT NULL,
+            Id                              BIGINT UNSIGNED AUTO_INCREMENT,
+            LiquidityPoolId                 BIGINT UNSIGNED    NOT NULL,
+            LiquidityUsd                    DECIMAL(30, 8)     NOT NULL,
+            DailyLiquidityUsdChangePercent  DECIMAL(30, 8)     NOT NULL,
+            VolumeUsd                       DECIMAL(30, 8)     NOT NULL,
+            StakingWeight                   BIGINT UNSIGNED    NOT NULL,
+            DailyStakingWeightChangePercent DECIMAL(30, 8)     NOT NULL,
+            LockedCrs                       BIGINT UNSIGNED    NOT NULL,
+            LockedSrc                       VARCHAR(78)        NOT NULL,
+            CreatedBlock                    BIGINT UNSIGNED    NOT NULL,
+            ModifiedBlock                   BIGINT UNSIGNED    NOT NULL,
             PRIMARY KEY (Id),
             INDEX pool_liquidity_summary_liquidity_pool_id_ix (LiquidityPoolId),
             INDEX pool_liquidity_summary_liquidity_usd_ix (LiquidityUsd),
+            INDEX pool_liquidity_summary_daily_liquidity_usd_change_ix (DailyLiquidityUsdChangePercent),
             INDEX pool_liquidity_summary_volume_usd_ix (VolumeUsd),
             INDEX pool_liquidity_summary_staking_weight_ix (StakingWeight),
+            INDEX pool_liquidity_summary_daily_staking_weight_change_ix (DailyStakingWeightChangePercent),
             INDEX pool_liquidity_summary_locked_crs_ix (LockedCrs),
             CONSTRAINT pool_liquidity_summary_liquidity_pool_id_pool_liquidity_id_fk
                 FOREIGN KEY (LiquidityPoolId)
