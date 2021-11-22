@@ -30,7 +30,7 @@ BEGIN
 
         -- Build new JSON and update record by Id with new JSON
         UPDATE market_snapshot SET Details = (SELECT JSON_MERGE_PRESERVE(
-            JSON_OBJECT('volume', JSON_EXTRACT(SnapshotDetails, '$.volume')),
+            JSON_OBJECT('volumeUsd', JSON_EXTRACT(SnapshotDetails, '$.volume')),
             JSON_OBJECT('rewards', JSON_MERGE_PRESERVE(
                                     JSON_OBJECT('marketUsd', JSON_EXTRACT(SnapshotDetails, '$.rewards.marketUsd')),
                                     JSON_OBJECT('providerUsd', JSON_EXTRACT(SnapshotDetails, '$.rewards.providerUsd'))
