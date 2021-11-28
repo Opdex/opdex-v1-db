@@ -508,7 +508,7 @@ CREATE PROCEDURE CreateDatabase ()
                 ON DELETE CASCADE
         ) ENGINE=INNODB;
 
-        CREATE TABLE IF NOT EXISTS governance
+        CREATE TABLE IF NOT EXISTS mining_governance
         (
             Id                  BIGINT UNSIGNED AUTO_INCREMENT,
             Address             VARCHAR(50)              NOT NULL,
@@ -520,45 +520,45 @@ CREATE PROCEDURE CreateDatabase ()
             CreatedBlock        BIGINT UNSIGNED          NOT NULL,
             ModifiedBlock       BIGINT UNSIGNED          NOT NULL,
             PRIMARY KEY (Id),
-            UNIQUE governance_address_uq (Address),
-            CONSTRAINT governance_token_id_token_id_fk
+            UNIQUE mining_governance_address_uq (Address),
+            CONSTRAINT mining_governance_token_id_token_id_fk
                 FOREIGN KEY (TokenId)
                 REFERENCES token (Id),
-            CONSTRAINT governance_created_block_block_height_fk
+            CONSTRAINT mining_governance_created_block_block_height_fk
                 FOREIGN KEY (CreatedBlock)
                 REFERENCES block (Height),
-            CONSTRAINT governance_modified_block_block_height_fk
+            CONSTRAINT mining_governance_modified_block_block_height_fk
                 FOREIGN KEY (ModifiedBlock)
                 REFERENCES block (Height)
         ) ENGINE=INNODB;
 
-        CREATE TABLE IF NOT EXISTS governance_nomination
+        CREATE TABLE IF NOT EXISTS mining_governance_nomination
         (
-            Id              BIGINT UNSIGNED AUTO_INCREMENT,
-            GovernanceId    BIGINT UNSIGNED NOT NULL,
-            LiquidityPoolId BIGINT UNSIGNED NOT NULL,
-            MiningPoolId    BIGINT UNSIGNED NOT NULL,
-            IsNominated     BIT             NULL,
-            Weight          VARCHAR(78)     NOT NULL,
-            CreatedBlock    BIGINT UNSIGNED NOT NULL,
-            ModifiedBlock   BIGINT UNSIGNED NOT NULL,
+            Id                  BIGINT UNSIGNED AUTO_INCREMENT,
+            MiningGovernanceId  BIGINT UNSIGNED NOT NULL,
+            LiquidityPoolId     BIGINT UNSIGNED NOT NULL,
+            MiningPoolId        BIGINT UNSIGNED NOT NULL,
+            IsNominated         BIT             NULL,
+            Weight              VARCHAR(78)     NOT NULL,
+            CreatedBlock        BIGINT UNSIGNED NOT NULL,
+            ModifiedBlock       BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
-            -- Deviate from naming standard with "gov_id" - name too long
-            UNIQUE governance_nomination_gov_id_liquidity_pool_id_mining_pool_id_uq (GovernanceId, LiquidityPoolId, MiningPoolId),
-            INDEX governance_nomination_is_nominated_ix (IsNominated),
-            CONSTRAINT governance_nomination_governance_id_governance_id_fk
-                FOREIGN KEY (GovernanceId)
-                REFERENCES governance (Id),
-            CONSTRAINT governance_nomination_liquidity_pool_id_pool_liquidity_id_fk
+            -- Deviate from naming standard with "gov_id", "liq_pool_id" and "min_pool_id" - name too long
+            UNIQUE mining_governance_nomination_gov_id_liq_pool_id_min_pool_id_uq (MiningGovernanceId, LiquidityPoolId, MiningPoolId),
+            INDEX mining_governance_nomination_is_nominated_ix (IsNominated),
+            CONSTRAINT mining_governance_nomination_gov_id_mining_governance_id_fk
+                FOREIGN KEY (MiningGovernanceId)
+                REFERENCES mining_governance (Id),
+            CONSTRAINT mining_governance_nomination_liq_pool_id_pool_liquidity_id_fk
                 FOREIGN KEY (LiquidityPoolId)
                 REFERENCES pool_liquidity (Id),
-            CONSTRAINT governance_nomination_mining_pool_id_pool_mining_id_fk
+            CONSTRAINT mining_governance_nomination_min_pool_id_pool_mining_id_fk
                 FOREIGN KEY (MiningPoolId)
                 REFERENCES pool_mining (Id),
-            CONSTRAINT governance_nomination_created_block_block_height_fk
+            CONSTRAINT mining_governance_nomination_created_block_block_height_fk
                 FOREIGN KEY (CreatedBlock)
                 REFERENCES block (Height),
-            CONSTRAINT governance_nomination_modified_block_block_height_fk
+            CONSTRAINT mining_governance_nomination_modified_block_block_height_fk
                 FOREIGN KEY (ModifiedBlock)
                 REFERENCES block (Height)
         ) ENGINE=INNODB;
