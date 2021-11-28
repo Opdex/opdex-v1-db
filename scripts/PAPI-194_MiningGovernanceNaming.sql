@@ -9,14 +9,14 @@ CREATE PROCEDURE MiningGovernanceNaming ()
     SELECT COUNT(*) into @governanceNominationsExists
     FROM INFORMATION_SCHEMA.TABLES
     WHERE table_schema = 'platform' 
-        AND table_name = 'governance_nominations';
+        AND table_name = 'governance_nomination';
 
     SELECT COUNT(*) into @governanceExists
     FROM INFORMATION_SCHEMA.TABLES
     WHERE table_schema = 'platform' 
         AND table_name = 'governance';
 
-    IF @governanceNominationsExists THEN
+    IF @governanceNominationsExists AND @governanceExists THEN
         ALTER TABLE governance_nomination
             DROP INDEX governance_nomination_gov_id_liquidity_pool_id_mining_pool_id_uq,
             DROP INDEX governance_nomination_is_nominated_ix,
@@ -28,10 +28,10 @@ CREATE PROCEDURE MiningGovernanceNaming ()
         ALTER TABLE governance_nomination RENAME COLUMN GovernanceId TO MiningGovernanceId;
         ALTER TABLE governance_nomination
             ADD UNIQUE mining_governance_nomination_gov_id_liq_pool_id_min_pool_id_uq
-                (GovernanceId, LiquidityPoolId, MiningPoolId),
+                (MiningGovernanceId, LiquidityPoolId, MiningPoolId),
             ADD INDEX mining_governance_nomination_is_nominated_ix (IsNominated),
             ADD CONSTRAINT mining_governance_nomination_gov_id_mining_governance_id_fk
-                FOREIGN KEY (GovernanceId) REFERENCES governance (Id),
+                FOREIGN KEY (MiningGovernanceId) REFERENCES governance (Id),
             ADD CONSTRAINT mining_governance_nomination_liq_pool_id_pool_liquidity_id_fk
                 FOREIGN KEY (LiquidityPoolId) REFERENCES pool_liquidity (Id),
             ADD CONSTRAINT mining_governance_nomination_min_pool_id_pool_mining_id_fk
@@ -41,9 +41,6 @@ CREATE PROCEDURE MiningGovernanceNaming ()
             Add CONSTRAINT mining_governance_nomination_modified_block_block_height_fk
                 FOREIGN KEY (ModifiedBlock) REFERENCES block (Height);
         RENAME TABLE governance_nomination TO mining_governance_nomination;
-    END IF;
-
-    IF @governanceExists THEN
         ALTER TABLE governance
             DROP INDEX governance_address_uq,
             DROP FOREIGN KEY governance_token_id_token_id_fk,
