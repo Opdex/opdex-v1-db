@@ -49,8 +49,8 @@ BEGIN
         DELETE FROM transaction WHERE Block > rewindHeight; -- on delete cascades transaction_log
         DELETE FROM vault_certificate WHERE CreatedBlock > rewindHeight;
         DELETE FROM vault WHERE CreatedBlock > rewindHeight;
-        DELETE FROM governance_nomination WHERE CreatedBlock > rewindHeight;
-        DELETE FROM governance WHERE CreatedBlock > rewindHeight;
+        DELETE FROM mining_governance_nomination WHERE CreatedBlock > rewindHeight;
+        DELETE FROM mining_governance WHERE CreatedBlock > rewindHeight;
         DELETE FROM pool_mining WHERE CreatedBlock > rewindHeight;
         DELETE FROM pool_liquidity_summary WHERE CreatedBlock > rewindHeight;
         DELETE FROM pool_liquidity_snapshot WHERE StartDate >= @rewindBlockStartOfHour;
@@ -73,8 +73,8 @@ BEGIN
         UPDATE address_staking SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE vault_certificate SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE vault SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
-        UPDATE governance_nomination SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
-        UPDATE governance SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
+        UPDATE mining_governance_nomination SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
+        UPDATE mining_governance SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE pool_mining SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE pool_liquidity_summary SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE pool_liquidity SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
