@@ -55,6 +55,7 @@ CREATE PROCEDURE CreateDatabase ()
             Available    BIT            NOT NULL,
             Locked       BIT            NOT NULL,
             InstanceId   VARCHAR(40)    NULL,
+            Reason       VARCHAR(20)    NULL,
             ModifiedDate DATETIME       NOT NULL,
             PRIMARY KEY (Id)
         ) ENGINE=INNODB;
