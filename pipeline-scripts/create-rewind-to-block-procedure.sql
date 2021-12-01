@@ -65,9 +65,9 @@ BEGIN
         DELETE FROM token WHERE CreatedBlock > rewindHeight;
         DELETE FROM vault_certificate WHERE CreatedBlock > rewindHeight;
         DELETE FROM vault WHERE CreatedBlock > rewindHeight;
-        DELETE FROM vault_governance_proposal_vote WHERE CreatedBlock > rewindHeight;
-        DELETE FROM vault_governance_proposal_pledge WHERE CreatedBlock > rewindHeight;
-        DELETE FROM vault_governance_proposal WHERE CreatedBlock > rewindHeight;
+        DELETE FROM proposal_vote WHERE CreatedBlock > rewindHeight;
+        DELETE FROM proposal_pledge WHERE CreatedBlock > rewindHeight;
+        DELETE FROM proposal WHERE CreatedBlock > rewindHeight;
         DELETE FROM vault_governance_certificate WHERE CreatedBlock > rewindHeight;
         DELETE FROM vault_governance WHERE CreatedBlock > rewindHeight;
 
@@ -91,9 +91,9 @@ BEGIN
         UPDATE token SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE vault_certificate SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE vault SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
-        UPDATE vault_governance_proposal_vote SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
-        UPDATE vault_governance_proposal_pledge SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
-        UPDATE vault_governance_proposal SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
+        UPDATE proposal_vote SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
+        UPDATE proposal_pledge SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
+        UPDATE proposal SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE vault_governance_certificate SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE vault_governance SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
 
