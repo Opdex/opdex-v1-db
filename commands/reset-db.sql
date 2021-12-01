@@ -12,7 +12,7 @@ delete FROM address_mining where Id > 0;
 delete FROM address_staking where Id > 0;
 delete FROM block where Height > 0;
 delete FROM mining_governance where Id > 0;
-delete from _mininggovernance_nomination where Id > 0;
+delete from mining_governance_nomination where Id > 0;
 delete FROM market where Id > 0;
 delete FROM market_deployer where Id > 0;
 delete FROM market_permission where Id > 0;
