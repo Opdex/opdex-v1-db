@@ -706,6 +706,7 @@ CREATE PROCEDURE CreateDatabase ()
             Expiration          BIGINT UNSIGNED   NOT NULL,
             YesAmount           BIGINT UNSIGNED   NOT NULL,
             NoAmount            BIGINT UNSIGNED   NOT NULL,
+            PledgeAmount        BIGINT UNSIGNED   NOT NULL,
             CreatedBlock        BIGINT UNSIGNED   NOT NULL,
             ModifiedBlock       BIGINT UNSIGNED   NOT NULL,
             PRIMARY KEY (Id),
