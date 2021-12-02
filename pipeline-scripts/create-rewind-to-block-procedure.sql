@@ -47,6 +47,13 @@ BEGIN
         DELETE FROM address_mining WHERE CreatedBlock > rewindHeight;
         DELETE FROM address_staking WHERE CreatedBlock > rewindHeight;
         DELETE FROM transaction WHERE Block > rewindHeight; -- on delete cascades transaction_log
+        DELETE FROM vault_certificate WHERE CreatedBlock > rewindHeight;
+        DELETE FROM vault WHERE CreatedBlock > rewindHeight;
+        DELETE FROM proposal_vote WHERE CreatedBlock > rewindHeight;
+        DELETE FROM proposal_pledge WHERE CreatedBlock > rewindHeight;
+        DELETE FROM proposal WHERE CreatedBlock > rewindHeight;
+        DELETE FROM vault_governance_certificate WHERE CreatedBlock > rewindHeight;
+        DELETE FROM vault_governance WHERE CreatedBlock > rewindHeight;
         DELETE FROM mining_governance_nomination WHERE CreatedBlock > rewindHeight;
         DELETE FROM mining_governance WHERE CreatedBlock > rewindHeight;
         DELETE FROM pool_mining WHERE CreatedBlock > rewindHeight;
@@ -63,13 +70,6 @@ BEGIN
         DELETE FROM market_deployer WHERE CreatedBlock > rewindHeight;
         DELETE FROM token_distribution WHERE CreatedBlock > rewindHeight;
         DELETE FROM token WHERE CreatedBlock > rewindHeight;
-        DELETE FROM vault_certificate WHERE CreatedBlock > rewindHeight;
-        DELETE FROM vault WHERE CreatedBlock > rewindHeight;
-        DELETE FROM proposal_vote WHERE CreatedBlock > rewindHeight;
-        DELETE FROM proposal_pledge WHERE CreatedBlock > rewindHeight;
-        DELETE FROM proposal WHERE CreatedBlock > rewindHeight;
-        DELETE FROM vault_governance_certificate WHERE CreatedBlock > rewindHeight;
-        DELETE FROM vault_governance WHERE CreatedBlock > rewindHeight;
 
         -- Update any remaining records setting ModifiedBlock to the rewind height
         -- --------------------------------------------------------------------
