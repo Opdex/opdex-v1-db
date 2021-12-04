@@ -46,8 +46,8 @@ CREATE PROCEDURE CreateNewVaultTables ()
             UnassignedSupply    VARCHAR(78)     NOT NULL,
             VestingDuration     BIGINT UNSIGNED NOT NULL,
             ProposedSupply      VARCHAR(78)     NOT NULL,
-            PledgeMinimum       BIGINT UNSIGNED NOT NULL,
-            ProposalMinimum     BIGINT UNSIGNED NOT NULL,
+            TotalPledgeMinimum  BIGINT UNSIGNED NOT NULL,
+            TotalVoteMinimum    BIGINT UNSIGNED NOT NULL,
             CreatedBlock        BIGINT UNSIGNED NOT NULL,
             ModifiedBlock       BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
@@ -68,7 +68,7 @@ CREATE PROCEDURE CreateNewVaultTables ()
         CREATE TABLE IF NOT EXISTS vault_governance_certificate
         (
             Id                  BIGINT UNSIGNED AUTO_INCREMENT,
-            VaultGovernanceId   BIGINT UNSIGNED NOT NULL,
+            VaultId             BIGINT UNSIGNED NOT NULL,
             Owner               VARCHAR(50)     NOT NULL,
             Amount              VARCHAR(78)     NOT NULL,
             Revoked             BIT             NOT NULL,
@@ -81,8 +81,8 @@ CREATE PROCEDURE CreateNewVaultTables ()
             INDEX vault_governance_certificate_redeemed_ix (Redeemed),
             INDEX vault_governance_certificate_revoked_ix (Revoked),
             INDEX vault_governance_certificate_vested_block_ix (VestedBlock),
-            CONSTRAINT vault_governance_certificate_vault_governance_id_vault_governance_id_fk
-                FOREIGN KEY (VaultGovernanceId)
+            CONSTRAINT vault_governance_certificate_vault_governance_id_vault_id_fk
+                FOREIGN KEY (VaultId)
                 REFERENCES vault_governance (Id),
             CONSTRAINT vault_governance_certificate_created_block_block_height_fk
                 FOREIGN KEY (CreatedBlock)
@@ -122,8 +122,8 @@ CREATE PROCEDURE CreateNewVaultTables ()
         VALUES
             (1, 'Create'),
             (2, 'Revoke'),
-            (3, 'PledgeMinimum'),
-            (4, 'ProposalMinimum');
+            (3, 'TotalPledgeMinimum'),
+            (4, 'TotalVoteMinimum');
     END IF;
 
     IF NOT @proposalExists THEN
@@ -231,8 +231,8 @@ CREATE PROCEDURE CreateNewVaultTables ()
 
     INSERT IGNORE INTO transaction_log_type(Id, LogType)
     VALUES
-        (29, 'CompleteVaultProposalLog'),
-        (30, 'CreateVaultProposalLog'),
+        (29, 'CreateVaultProposalLog'),
+        (30, 'CompleteVaultProposalLog'),
         (31, 'VaultProposalPledgeLog'),
         (32, 'VaultProposalPledgeWithdrawLog'),
         (33, 'VaultProposalVoteLog'),
