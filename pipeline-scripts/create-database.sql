@@ -857,9 +857,9 @@ CREATE PROCEDURE CreateDatabase ()
         (29, 'CreateVaultProposalLog'),
         (30, 'CompleteVaultProposalLog'),
         (31, 'VaultProposalPledgeLog'),
-        (32, 'VaultProposalPledgeWithdrawLog'),
+        (32, 'VaultProposalWithdrawPledgeLog'),
         (33, 'VaultProposalVoteLog'),
-        (34, 'VaultProposalVoteWithdrawLog');
+        (34, 'VaultProposalWithdrawVoteLog');
 
         INSERT IGNORE INTO snapshot_type(Id, SnapshotType)
         VALUES
