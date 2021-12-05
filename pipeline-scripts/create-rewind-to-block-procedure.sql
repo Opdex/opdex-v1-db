@@ -49,6 +49,11 @@ BEGIN
         DELETE FROM transaction WHERE Block > rewindHeight; -- on delete cascades transaction_log
         DELETE FROM vault_certificate WHERE CreatedBlock > rewindHeight;
         DELETE FROM vault WHERE CreatedBlock > rewindHeight;
+        DELETE FROM vault_proposal_vote WHERE CreatedBlock > rewindHeight;
+        DELETE FROM vault_proposal_pledge WHERE CreatedBlock > rewindHeight;
+        DELETE FROM vault_proposal WHERE CreatedBlock > rewindHeight;
+        DELETE FROM vault_governance_certificate WHERE CreatedBlock > rewindHeight;
+        DELETE FROM vault_governance WHERE CreatedBlock > rewindHeight;
         DELETE FROM mining_governance_nomination WHERE CreatedBlock > rewindHeight;
         DELETE FROM mining_governance WHERE CreatedBlock > rewindHeight;
         DELETE FROM pool_mining WHERE CreatedBlock > rewindHeight;
@@ -71,8 +76,6 @@ BEGIN
         UPDATE address_balance SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE address_mining SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE address_staking SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
-        UPDATE vault_certificate SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
-        UPDATE vault SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE mining_governance_nomination SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE mining_governance SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE pool_mining SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
@@ -86,6 +89,13 @@ BEGIN
         UPDATE market_deployer SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE token_distribution SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE token SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
+        UPDATE vault_certificate SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
+        UPDATE vault SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
+        UPDATE vault_proposal_vote SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
+        UPDATE vault_proposal_pledge SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
+        UPDATE vault_proposal SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
+        UPDATE vault_governance_certificate SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
+        UPDATE vault_governance SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
 
         -- Delete blocks
         -- --------------------------------------------------------------------
