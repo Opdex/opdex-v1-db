@@ -712,6 +712,7 @@ CREATE PROCEDURE CreateDatabase ()
             YesAmount           BIGINT UNSIGNED   NOT NULL,
             NoAmount            BIGINT UNSIGNED   NOT NULL,
             PledgeAmount        BIGINT UNSIGNED   NOT NULL,
+            Approved            BIT               NOT NULL,
             CreatedBlock        BIGINT UNSIGNED   NOT NULL,
             ModifiedBlock       BIGINT UNSIGNED   NOT NULL,
             PRIMARY KEY (Id),
@@ -724,10 +725,10 @@ CREATE PROCEDURE CreateDatabase ()
                 REFERENCES vault_governance (Id),
             CONSTRAINT vault_proposal_proposal_type_id_proposal_type_id_fk
                 FOREIGN KEY (ProposalTypeId)
-                REFERENCES proposal_type (Id),
+                REFERENCES vault_proposal_type (Id),
             CONSTRAINT vault_proposal_proposal_status_id_proposal_status_id_fk
                 FOREIGN KEY (ProposalStatusId)
-                REFERENCES proposal_status (Id),
+                REFERENCES vault_proposal_status (Id),
             CONSTRAINT vault_proposal_created_block_block_height_fk
                 FOREIGN KEY (CreatedBlock)
                 REFERENCES block (Height),
@@ -755,7 +756,7 @@ CREATE PROCEDURE CreateDatabase ()
                 REFERENCES vault_governance (Id),
             CONSTRAINT vault_proposal_pledge_proposal_id_proposal_id_fk
                 FOREIGN KEY (ProposalId)
-                REFERENCES proposal (Id),
+                REFERENCES vault_proposal (Id),
             CONSTRAINT vault_proposal_pledge_created_block_block_height_fk
                 FOREIGN KEY (CreatedBlock)
                 REFERENCES block (Height),
@@ -785,7 +786,7 @@ CREATE PROCEDURE CreateDatabase ()
                 REFERENCES vault_governance (Id),
             CONSTRAINT vault_proposal_vote_proposal_id_proposal_id_fk
                 FOREIGN KEY (ProposalId)
-                REFERENCES proposal (Id),
+                REFERENCES vault_proposal (Id),
             CONSTRAINT vault_proposal_vote_created_block_block_height_fk
                 FOREIGN KEY (CreatedBlock)
                 REFERENCES block (Height),
