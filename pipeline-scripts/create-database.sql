@@ -705,7 +705,7 @@ CREATE PROCEDURE CreateDatabase ()
             Creator             VARCHAR(50)       NOT NULL,
             Wallet              VARCHAR(50)       NOT NULL,
             Amount              VARCHAR(78)       NOT NULL,
-            Description         VARCHAR(200)      NOT NULL,
+            Description         VARCHAR(200)      CHARACTER SET utf16 NOT NULL COLLATE utf16_general_ci,
             ProposalTypeId      SMALLINT UNSIGNED NOT NULL,
             ProposalStatusId    SMALLINT UNSIGNED NOT NULL,
             Expiration          BIGINT UNSIGNED   NOT NULL,
