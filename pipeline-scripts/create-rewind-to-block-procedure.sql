@@ -64,7 +64,7 @@ BEGIN
         DELETE FROM token_snapshot WHERE TokenId > 1 AND StartDate >= @rewindBlockStartOfHour;
         DELETE FROM market_router WHERE CreatedBlock > rewindHeight;
         DELETE FROM market_permission WHERE CreatedBlock > rewindHeight;
-        -- DELETE FROM market_summary WHERE CreatedBlock > rewindHeight; -- future probability
+        DELETE FROM market_summary WHERE CreatedBlock > rewindHeight;
         DELETE FROM market_snapshot WHERE StartDate >= @rewindBlockStartOfDay; -- only track daily snapshots
         DELETE FROM market WHERE CreatedBlock > rewindHeight;
         DELETE FROM market_deployer WHERE CreatedBlock > rewindHeight;
@@ -84,7 +84,7 @@ BEGIN
         UPDATE token_summary SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE market_router SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE market_permission SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
-        -- UPDATE market_summary SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight; -- future probability
+        UPDATE market_summary SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE market SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE market_deployer SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE token_distribution SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
