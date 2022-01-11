@@ -209,7 +209,7 @@ CREATE PROCEDURE CreateDatabase ()
             CHECK (JSON_valid(`Details`)),
             INDEX market_snapshot_end_date_ix (EndDate),
             INDEX market_snapshot_start_date_ix (StartDate),
-            UNIQUE market_snapshot_market_id_start_date_end_date_ix (MarketId, StartDate, EndDate),
+            UNIQUE market_snapshot_market_id_start_date_end_date_uq (MarketId, StartDate, EndDate),
             CONSTRAINT market_snapshot_snapshot_type_id_snapshot_type_id_fk
                 FOREIGN KEY (SnapshotTypeId)
                 REFERENCES snapshot_type (Id),
@@ -298,7 +298,7 @@ CREATE PROCEDURE CreateDatabase ()
             CHECK (JSON_valid(`Details`)),
             INDEX pool_liquidity_snapshot_end_date_ix (EndDate),
             INDEX pool_liquidity_snapshot_start_date_ix (StartDate),
-            UNIQUE market_snapshot_market_id_start_date_end_date_ix (LiquidityPoolId, StartDate, EndDate),
+            UNIQUE pool_liquidity_snapshot_liquidity_pool_id_start_date_end_date_uq (LiquidityPoolId, StartDate, EndDate),
             CONSTRAINT pool_liquidity_snapshot_snapshot_type_id_snapshot_type_id_fk
                 FOREIGN KEY (SnapshotTypeId)
                 REFERENCES snapshot_type (Id),
@@ -378,7 +378,7 @@ CREATE PROCEDURE CreateDatabase ()
             INDEX token_snapshot_end_date_ix (EndDate),
             INDEX token_snapshot_start_date_ix (StartDate),
             INDEX token_snapshot_market_id_ix (MarketId), -- No FK, CRS uses MarketId = 0
-            UNIQUE token_snapshot_token_id_start_date_end_date_uq (MarketId, TokenId, StartDate, EndDate),
+            UNIQUE token_snapshot_market_id_token_id_start_date_end_date_uq (MarketId, TokenId, StartDate, EndDate),
             CONSTRAINT token_snapshot_snapshot_type_id_snapshot_type_id_fk
                 FOREIGN KEY (SnapshotTypeId)
                 REFERENCES snapshot_type (Id),
@@ -509,6 +509,7 @@ CREATE PROCEDURE CreateDatabase ()
             Success            BIT DEFAULT b'0' NOT NULL,
             GasUsed            INT              NOT NULL,
             Block              BIGINT UNSIGNED  NOT NULL,
+            Error              varchar(1000)    CHARACTER SET utf16 NULL COLLATE utf16_general_ci,
             PRIMARY KEY (Id),
             INDEX transaction_from_ix (`From`),
             UNIQUE transaction_hash_uq (Hash),
@@ -736,7 +737,7 @@ CREATE PROCEDURE CreateDatabase ()
             CONSTRAINT vault_proposal_certificate_proposal_id_vault_proposal_id_fk
                 FOREIGN KEY (ProposalId)
                 REFERENCES vault_proposal (Id),
-            CONSTRAINT vault_proposal_certificate_certificate_id_vault_certificate_id_fk
+            CONSTRAINT vault_proposal_certificate_cert_id_vault_cert_id_fk
                 FOREIGN KEY (ProposalId)
                 REFERENCES vault_certificate (Id),
             CONSTRAINT vault_proposal_certificate_created_block_block_height_fk
