@@ -209,7 +209,7 @@ CREATE PROCEDURE CreateDatabase ()
             CHECK (JSON_valid(`Details`)),
             INDEX market_snapshot_end_date_ix (EndDate),
             INDEX market_snapshot_start_date_ix (StartDate),
-            UNIQUE market_snapshot_market_id_start_date_end_date_ix (MarketId, StartDate, EndDate),
+            UNIQUE market_snapshot_market_id_start_date_end_date_uq (MarketId, StartDate, EndDate),
             CONSTRAINT market_snapshot_snapshot_type_id_snapshot_type_id_fk
                 FOREIGN KEY (SnapshotTypeId)
                 REFERENCES snapshot_type (Id),
@@ -298,7 +298,7 @@ CREATE PROCEDURE CreateDatabase ()
             CHECK (JSON_valid(`Details`)),
             INDEX pool_liquidity_snapshot_end_date_ix (EndDate),
             INDEX pool_liquidity_snapshot_start_date_ix (StartDate),
-            UNIQUE market_snapshot_market_id_start_date_end_date_ix (LiquidityPoolId, StartDate, EndDate),
+            UNIQUE pool_liquidity_snapshot_liquidity_pool_id_start_date_end_date_uq (LiquidityPoolId, StartDate, EndDate),
             CONSTRAINT pool_liquidity_snapshot_snapshot_type_id_snapshot_type_id_fk
                 FOREIGN KEY (SnapshotTypeId)
                 REFERENCES snapshot_type (Id),
@@ -378,7 +378,7 @@ CREATE PROCEDURE CreateDatabase ()
             INDEX token_snapshot_end_date_ix (EndDate),
             INDEX token_snapshot_start_date_ix (StartDate),
             INDEX token_snapshot_market_id_ix (MarketId), -- No FK, CRS uses MarketId = 0
-            UNIQUE token_snapshot_token_id_start_date_end_date_uq (MarketId, TokenId, StartDate, EndDate),
+            UNIQUE token_snapshot_market_id_token_id_start_date_end_date_uq (MarketId, TokenId, StartDate, EndDate),
             CONSTRAINT token_snapshot_snapshot_type_id_snapshot_type_id_fk
                 FOREIGN KEY (SnapshotTypeId)
                 REFERENCES snapshot_type (Id),
@@ -426,6 +426,7 @@ CREATE PROCEDURE CreateDatabase ()
             TokenId         BIGINT UNSIGNED   NOT NULL,
             AttributeTypeId SMALLINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
+            UNIQUE token_attribute_token_id_attribute_type_id_uq (TokenId, AttributeTypeId),
             CONSTRAINT token_attribute_token_id_token_id_fk
                 FOREIGN KEY (TokenId)
                 REFERENCES token (Id)
@@ -508,6 +509,7 @@ CREATE PROCEDURE CreateDatabase ()
             Success            BIT DEFAULT b'0' NOT NULL,
             GasUsed            INT              NOT NULL,
             Block              BIGINT UNSIGNED  NOT NULL,
+            Error              varchar(1000)    CHARACTER SET utf16 NULL COLLATE utf16_general_ci,
             PRIMARY KEY (Id),
             INDEX transaction_from_ix (`From`),
             UNIQUE transaction_hash_uq (Hash),
@@ -604,10 +606,11 @@ CREATE PROCEDURE CreateDatabase ()
             Id                  BIGINT UNSIGNED AUTO_INCREMENT,
             TokenId             BIGINT UNSIGNED NOT NULL,
             Address             VARCHAR(50)     NOT NULL,
-            PendingOwner        VARCHAR(50)     NULL,
-            Owner               VARCHAR(50)     NOT NULL,
-            Genesis             BIGINT UNSIGNED NOT NULL,
             UnassignedSupply    VARCHAR(78)     NOT NULL,
+            VestingDuration     BIGINT UNSIGNED NOT NULL,
+            ProposedSupply      VARCHAR(78)     NOT NULL,
+            TotalPledgeMinimum  BIGINT UNSIGNED NOT NULL,
+            TotalVoteMinimum    BIGINT UNSIGNED NOT NULL,
             CreatedBlock        BIGINT UNSIGNED NOT NULL,
             ModifiedBlock       BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
@@ -625,17 +628,20 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS vault_certificate
         (
-            Id            BIGINT UNSIGNED AUTO_INCREMENT,
-            VaultId       BIGINT UNSIGNED NOT NULL,
-            Owner         VARCHAR(50)     NOT NULL,
-            Amount        VARCHAR(78)     NOT NULL,
-            VestedBlock   BIGINT UNSIGNED NOT NULL,
-            Redeemed      BIT             NOT NULL,
-            Revoked       BIT             NOT NULL,
-            CreatedBlock  BIGINT UNSIGNED NOT NULL,
-            ModifiedBlock BIGINT UNSIGNED NOT NULL,
+            Id                  BIGINT UNSIGNED AUTO_INCREMENT,
+            VaultId             BIGINT UNSIGNED NOT NULL,
+            Owner               VARCHAR(50)     NOT NULL,
+            Amount              VARCHAR(78)     NOT NULL,
+            Revoked             BIT             NOT NULL,
+            Redeemed            BIT             NOT NULL,
+            VestedBlock         BIGINT UNSIGNED NOT NULL,
+            CreatedBlock        BIGINT UNSIGNED NOT NULL,
+            ModifiedBlock       BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
             INDEX vault_certificate_owner_ix (Owner),
+            INDEX vault_certificate_redeemed_ix (Redeemed),
+            INDEX vault_certificate_revoked_ix (Revoked),
+            INDEX vault_certificate_vested_block_ix (VestedBlock),
             CONSTRAINT vault_certificate_vault_id_vault_id_fk
                 FOREIGN KEY (VaultId)
                 REFERENCES vault (Id),
@@ -663,58 +669,6 @@ CREATE PROCEDURE CreateDatabase ()
                 ON DELETE CASCADE
         ) ENGINE=INNODB;
 
-        CREATE TABLE IF NOT EXISTS vault_governance
-        (
-            Id                  BIGINT UNSIGNED AUTO_INCREMENT,
-            TokenId             BIGINT UNSIGNED NOT NULL,
-            Address             VARCHAR(50)     NOT NULL,
-            UnassignedSupply    VARCHAR(78)     NOT NULL,
-            VestingDuration     BIGINT UNSIGNED NOT NULL,
-            ProposedSupply      VARCHAR(78)     NOT NULL,
-            TotalPledgeMinimum  BIGINT UNSIGNED NOT NULL,
-            TotalVoteMinimum    BIGINT UNSIGNED NOT NULL,
-            CreatedBlock        BIGINT UNSIGNED NOT NULL,
-            ModifiedBlock       BIGINT UNSIGNED NOT NULL,
-            PRIMARY KEY (Id),
-            UNIQUE vault_governance_address_uq (Address),
-            CONSTRAINT vault_governance_token_id_token_id_fk
-                FOREIGN KEY (TokenId)
-                REFERENCES token (Id),
-            CONSTRAINT vault_governance_created_block_block_height_fk
-                FOREIGN KEY (CreatedBlock)
-                REFERENCES block (Height),
-            CONSTRAINT vault_governance_modified_block_block_height_fk
-                FOREIGN KEY (ModifiedBlock)
-                REFERENCES block (Height)
-        ) ENGINE=INNODB;
-
-        CREATE TABLE IF NOT EXISTS vault_governance_certificate
-        (
-            Id                  BIGINT UNSIGNED AUTO_INCREMENT,
-            VaultId             BIGINT UNSIGNED NOT NULL,
-            Owner               VARCHAR(50)     NOT NULL,
-            Amount              VARCHAR(78)     NOT NULL,
-            Revoked             BIT             NOT NULL,
-            Redeemed            BIT             NOT NULL,
-            VestedBlock         BIGINT UNSIGNED NOT NULL,
-            CreatedBlock        BIGINT UNSIGNED NOT NULL,
-            ModifiedBlock       BIGINT UNSIGNED NOT NULL,
-            PRIMARY KEY (Id),
-            INDEX vault_governance_certificate_owner_ix (Owner),
-            INDEX vault_governance_certificate_redeemed_ix (Redeemed),
-            INDEX vault_governance_certificate_revoked_ix (Revoked),
-            INDEX vault_governance_certificate_vested_block_ix (VestedBlock),
-            CONSTRAINT vault_governance_certificate_vault_governance_id_vault_id_fk
-                FOREIGN KEY (VaultId)
-                REFERENCES vault_governance (Id),
-            CONSTRAINT vault_governance_certificate_created_block_block_height_fk
-                FOREIGN KEY (CreatedBlock)
-                REFERENCES block (Height),
-            CONSTRAINT vault_governance_certificate_modified_block_block_height_fk
-                FOREIGN KEY (ModifiedBlock)
-                REFERENCES block (Height)
-        ) ENGINE=INNODB;
-
         CREATE TABLE IF NOT EXISTS vault_proposal_type
         (
             Id           SMALLINT UNSIGNED  NOT NULL,
@@ -735,7 +689,7 @@ CREATE PROCEDURE CreateDatabase ()
         (
             Id                  BIGINT UNSIGNED   AUTO_INCREMENT,
             PublicId            BIGINT UNSIGNED   NOT NULL,
-            VaultGovernanceId   BIGINT UNSIGNED   NOT NULL,
+            VaultId             BIGINT UNSIGNED   NOT NULL,
             Creator             VARCHAR(50)       NOT NULL,
             Wallet              VARCHAR(50)       NOT NULL,
             Amount              VARCHAR(78)       NOT NULL,
@@ -754,9 +708,9 @@ CREATE PROCEDURE CreateDatabase ()
             INDEX vault_proposal_creator_ix (Creator),
             INDEX vault_proposal_wallet_ix (Wallet),
             INDEX vault_proposal_expiration_ix (Expiration),
-            CONSTRAINT vault_proposal_vault_governance_id_vault_governance_id
-                FOREIGN KEY (VaultGovernanceId)
-                REFERENCES vault_governance (Id),
+            CONSTRAINT vault_proposal_vault_id_vault_id
+                FOREIGN KEY (VaultId)
+                REFERENCES vault (Id),
             CONSTRAINT vault_proposal_proposal_type_id_proposal_type_id_fk
                 FOREIGN KEY (ProposalTypeId)
                 REFERENCES vault_proposal_type (Id),
@@ -771,10 +725,33 @@ CREATE PROCEDURE CreateDatabase ()
                 REFERENCES block (Height)
         ) ENGINE=INNODB;
 
+        CREATE TABLE IF NOT EXISTS vault_proposal_certificate
+        (
+            Id            BIGINT UNSIGNED AUTO_INCREMENT,
+            ProposalId    BIGINT UNSIGNED NOT NULL,
+            CertificateId BIGINT UNSIGNED NOT NULL,
+            CreatedBlock  BIGINT UNSIGNED NOT NULL,
+            ModifiedBlock BIGINT UNSIGNED NOT NULL,
+            PRIMARY KEY (Id),
+            UNIQUE vault_proposal_certificate_proposal_id_certificate_id_uq (ProposalId, CertificateId),
+            CONSTRAINT vault_proposal_certificate_proposal_id_vault_proposal_id_fk
+                FOREIGN KEY (ProposalId)
+                REFERENCES vault_proposal (Id),
+            CONSTRAINT vault_proposal_certificate_cert_id_vault_cert_id_fk
+                FOREIGN KEY (ProposalId)
+                REFERENCES vault_certificate (Id),
+            CONSTRAINT vault_proposal_certificate_created_block_block_height_fk
+                FOREIGN KEY (CreatedBlock)
+                REFERENCES block (Height),
+            CONSTRAINT vault_proposal_certificate_modified_block_block_height_fk
+                FOREIGN KEY (ModifiedBlock)
+                REFERENCES block (Height)
+        ) ENGINE=INNODB;
+
         CREATE TABLE IF NOT EXISTS vault_proposal_pledge
         (
             Id                  BIGINT UNSIGNED AUTO_INCREMENT,
-            VaultGovernanceId   BIGINT UNSIGNED NOT NULL,
+            VaultId             BIGINT UNSIGNED NOT NULL,
             ProposalId          BIGINT UNSIGNED NOT NULL,
             Pledger             VARCHAR(50)     NOT NULL,
             Pledge              BIGINT UNSIGNED NOT NULL,
@@ -784,10 +761,10 @@ CREATE PROCEDURE CreateDatabase ()
             PRIMARY KEY (Id),
             INDEX vault_proposal_pledge_pledger_ix (Pledger),
             INDEX vault_proposal_pledge_pledge_ix (Pledge),
-            UNIQUE vault_proposal_pledge_vault_governance_id_proposal_id_pledger_uq (VaultGovernanceId, ProposalId, Pledger),
-            CONSTRAINT vault_proposal_pledge_vault_governance_id_vault_governance_id_fk
-                FOREIGN KEY (VaultGovernanceId)
-                REFERENCES vault_governance (Id),
+            UNIQUE vault_proposal_pledge_vault_id_proposal_id_pledger_uq (VaultId, ProposalId, Pledger),
+            CONSTRAINT vault_proposal_pledge_vault_id_vault_id_fk
+                FOREIGN KEY (VaultId)
+                REFERENCES vault (Id),
             CONSTRAINT vault_proposal_pledge_proposal_id_proposal_id_fk
                 FOREIGN KEY (ProposalId)
                 REFERENCES vault_proposal (Id),
@@ -802,7 +779,7 @@ CREATE PROCEDURE CreateDatabase ()
         CREATE TABLE IF NOT EXISTS vault_proposal_vote
         (
             Id                  BIGINT UNSIGNED AUTO_INCREMENT,
-            VaultGovernanceId   BIGINT UNSIGNED NOT NULL,
+            VaultId             BIGINT UNSIGNED NOT NULL,
             ProposalId          BIGINT UNSIGNED NOT NULL,
             Voter               VARCHAR(50)     NOT NULL,
             Vote                BIGINT UNSIGNED NOT NULL,
@@ -814,10 +791,10 @@ CREATE PROCEDURE CreateDatabase ()
             INDEX vault_proposal_vote_voter_ix (Voter),
             INDEX vault_proposal_vote_vote_ix (Vote),
             INDEX vault_proposal_vote_in_favor_ix (InFavor),
-            UNIQUE vault_proposal_vote_vault_governance_id_proposal_id_voter_uq (VaultGovernanceId, ProposalId, Voter),
-            CONSTRAINT vault_proposal_vote_vault_governance_id_vault_governance_id_fk
-                FOREIGN KEY (VaultGovernanceId)
-                REFERENCES vault_governance (Id),
+            UNIQUE vault_proposal_vote_vault_id_proposal_id_voter_uq (VaultId, ProposalId, Voter),
+            CONSTRAINT vault_proposal_vote_vault_id_vault_id_fk
+                FOREIGN KEY (VaultId)
+                REFERENCES vault (Id),
             CONSTRAINT vault_proposal_vote_proposal_id_proposal_id_fk
                 FOREIGN KEY (ProposalId)
                 REFERENCES vault_proposal (Id),
@@ -850,12 +827,6 @@ CREATE PROCEDURE CreateDatabase ()
         -- -------
         -- -------
 
-        INSERT IGNORE INTO block(Height, Hash, Time, MedianTime)
-        VALUES(1, 'default', '0001-01-01 00:00:00', '0001-01-01 00:00:00');
-
-        INSERT IGNORE INTO token(Id, Address, IsLpt, Symbol, Name, Decimals, Sats, TotalSupply, CreatedBlock, ModifiedBlock)
-        VALUES(1, 'CRS', false, 'CRS', 'Cirrus', 8, 100000000, '13000000000000000', 1, 1);
-
         INSERT IGNORE INTO index_lock(Id, Available, Locked, ModifiedDate)
         VALUES (1, 0, 0, '0001-01-01 00:00:00');
 
@@ -887,14 +858,12 @@ CREATE PROCEDURE CreateDatabase ()
         (24, 'CreateVaultCertificateLog'),
         (25, 'RevokeVaultCertificateLog'),
         (26, 'RedeemVaultCertificateLog'),
-        (27, 'SetPendingVaultOwnershipLog'),
-        (28, 'ClaimPendingVaultOwnershipLog'),
-        (29, 'CreateVaultProposalLog'),
-        (30, 'CompleteVaultProposalLog'),
-        (31, 'VaultProposalPledgeLog'),
-        (32, 'VaultProposalWithdrawPledgeLog'),
-        (33, 'VaultProposalVoteLog'),
-        (34, 'VaultProposalWithdrawVoteLog');
+        (27, 'CreateVaultProposalLog'),
+        (28, 'CompleteVaultProposalLog'),
+        (29, 'VaultProposalPledgeLog'),
+        (30, 'VaultProposalWithdrawPledgeLog'),
+        (31, 'VaultProposalVoteLog'),
+        (32, 'VaultProposalWithdrawVoteLog');
 
         INSERT IGNORE INTO snapshot_type(Id, SnapshotType)
         VALUES
@@ -913,8 +882,8 @@ CREATE PROCEDURE CreateDatabase ()
 
         INSERT IGNORE INTO token_attribute_type(Id, AttributeType)
         VALUES
-            (1, 'Mintable'),
-            (2, 'Burnable'),
+            (1, 'Provisional'),
+            (2, 'NonProvisional'),
             (3, 'Staking'),
             (4, 'Security');
 
