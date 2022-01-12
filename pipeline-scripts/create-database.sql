@@ -28,7 +28,6 @@ CREATE PROCEDURE CreateDatabase ()
         (
             Id            BIGINT UNSIGNED AUTO_INCREMENT,
             Address       VARCHAR(50)     NOT NULL,
-            IsLpt         BIT DEFAULT 0   NOT NULL,
             Symbol        VARCHAR(20)     CHARACTER SET utf16 NOT NULL COLLATE utf16_general_ci,
             Name          VARCHAR(50)     CHARACTER SET utf16 NOT NULL COLLATE utf16_general_ci,
             Decimals      SMALLINT        NOT NULL,
@@ -40,7 +39,6 @@ CREATE PROCEDURE CreateDatabase ()
             UNIQUE token_address_uq (Address),
             INDEX token_symbol_ix (Symbol),
             INDEX token_name_ix (Name),
-            INDEX token_is_lpt_ix (IsLpt),
             CONSTRAINT token_created_block_block_height_fk
                 FOREIGN KEY (CreatedBlock)
                 REFERENCES block (Height),
@@ -422,7 +420,7 @@ CREATE PROCEDURE CreateDatabase ()
 
         CREATE TABLE IF NOT EXISTS token_attribute
         (
-            Id              SMALLINT UNSIGNED NOT NULL,
+            Id              BIGINT UNSIGNED AUTO_INCREMENT,
             TokenId         BIGINT UNSIGNED   NOT NULL,
             AttributeTypeId SMALLINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
