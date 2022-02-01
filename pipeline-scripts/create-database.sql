@@ -736,7 +736,7 @@ CREATE PROCEDURE CreateDatabase ()
                 FOREIGN KEY (ProposalId)
                 REFERENCES vault_proposal (Id),
             CONSTRAINT vault_proposal_certificate_cert_id_vault_cert_id_fk
-                FOREIGN KEY (ProposalId)
+                FOREIGN KEY (CertificateId)
                 REFERENCES vault_certificate (Id),
             CONSTRAINT vault_proposal_certificate_created_block_block_height_fk
                 FOREIGN KEY (CreatedBlock)
