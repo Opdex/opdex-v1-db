@@ -47,7 +47,6 @@ BEGIN
         DELETE FROM address_mining WHERE CreatedBlock > rewindHeight;
         DELETE FROM address_staking WHERE CreatedBlock > rewindHeight;
         DELETE FROM transaction WHERE Block > rewindHeight; -- on delete cascades transaction_log
-        DELETE FROM vault_proposal_certificate WHERE CreatedBlock > rewindHeight;
         DELETE FROM vault_proposal_vote WHERE CreatedBlock > rewindHeight;
         DELETE FROM vault_proposal_pledge WHERE CreatedBlock > rewindHeight;
         DELETE FROM vault_proposal WHERE CreatedBlock > rewindHeight;
@@ -88,7 +87,6 @@ BEGIN
         UPDATE market_deployer SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE token_distribution SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE token SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
-        UPDATE vault_proposal_certificate SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE vault_proposal_vote SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE vault_proposal_pledge SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE vault_proposal SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;

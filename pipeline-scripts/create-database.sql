@@ -728,22 +728,16 @@ CREATE PROCEDURE CreateDatabase ()
             Id            BIGINT UNSIGNED AUTO_INCREMENT,
             ProposalId    BIGINT UNSIGNED NOT NULL,
             CertificateId BIGINT UNSIGNED NOT NULL,
-            CreatedBlock  BIGINT UNSIGNED NOT NULL,
-            ModifiedBlock BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
             UNIQUE vault_proposal_certificate_proposal_id_certificate_id_uq (ProposalId, CertificateId),
             CONSTRAINT vault_proposal_certificate_proposal_id_vault_proposal_id_fk
                 FOREIGN KEY (ProposalId)
-                REFERENCES vault_proposal (Id),
+                REFERENCES vault_proposal (Id)
+                ON DELETE CASCADE,
             CONSTRAINT vault_proposal_certificate_cert_id_vault_cert_id_fk
-                FOREIGN KEY (ProposalId)
-                REFERENCES vault_certificate (Id),
-            CONSTRAINT vault_proposal_certificate_created_block_block_height_fk
-                FOREIGN KEY (CreatedBlock)
-                REFERENCES block (Height),
-            CONSTRAINT vault_proposal_certificate_modified_block_block_height_fk
-                FOREIGN KEY (ModifiedBlock)
-                REFERENCES block (Height)
+                FOREIGN KEY (CertificateId)
+                REFERENCES vault_certificate (Id)
+                ON DELETE CASCADE
         ) ENGINE=INNODB;
 
         CREATE TABLE IF NOT EXISTS vault_proposal_pledge
