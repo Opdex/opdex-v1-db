@@ -31,36 +31,36 @@ CREATE PROCEDURE VaultProposalCertificateBugFix ()
 
         SELECT COUNT(*) INTO @createsExist
         FROM vault_proposal p
-        LEFT JOIN vault_proposal_type vpt ON vpt.ProposalType = p.ProposalTypeId
+        LEFT JOIN vault_proposal_type vpt ON vpt.Id = p.ProposalTypeId
         LEFT JOIN vault_certificate vc ON vc.Amount = p.Amount AND vc.Owner = p.Wallet AND vc.VaultId = p.VaultId
         WHERE vpt.ProposalType = 'Create' AND vc.Id IS NOT NULL;
 
         IF @createsExist > 0 THEN
             -- Create relationship for Created certificates
-            INSERT IGNORE INTO vault_proposal_certificate
+            INSERT IGNORE INTO vault_proposal_certificate (ProposalId, CertificateId)
                 SELECT
                     p.Id AS ProposalId,
                     vc.Id AS CertificateId
                 FROM vault_proposal p
-                LEFT JOIN vault_proposal_type vpt ON vpt.ProposalType = p.ProposalTypeId
+                LEFT JOIN vault_proposal_type vpt ON vpt.Id = p.ProposalTypeId
                 LEFT JOIN vault_certificate vc ON vc.Amount = p.Amount AND vc.Owner = p.Wallet AND vc.VaultId = p.VaultId
                 WHERE vpt.ProposalType = 'Create' AND vc.Id IS NOT NULL;
         END IF;
 
         SELECT COUNT(*) INTO @revokesExist
         FROM vault_proposal p
-        LEFT JOIN vault_proposal_type vpt ON vpt.ProposalType = p.ProposalTypeId
+        LEFT JOIN vault_proposal_type vpt ON vpt.Id = p.ProposalTypeId
         LEFT JOIN vault_certificate vc ON vc.Amount = p.Amount AND vc.Owner = p.Wallet AND vc.VaultId = p.VaultId
         WHERE vpt.ProposalType = 'Revoke' AND vc.Id IS NOT NULL;
 
         IF @revokesExist > 0 THEN
             -- Create relationship for Revoked certificates
-            INSERT IGNORE INTO vault_proposal_certificate
+            INSERT IGNORE INTO vault_proposal_certificate (ProposalId, CertificateId)
                 SELECT
                     p.Id AS ProposalId,
                     vc.Id AS CertificateId
                 FROM vault_proposal p
-                LEFT JOIN vault_proposal_type vpt ON vpt.ProposalType = p.ProposalTypeId
+                LEFT JOIN vault_proposal_type vpt ON vpt.Id = p.ProposalTypeId
                 LEFT JOIN vault_certificate vc ON vc.Amount = p.Amount AND vc.Owner = p.Wallet AND vc.VaultId = p.VaultId
                 WHERE vpt.ProposalType = 'Revoke' AND vc.Id IS NOT NULL;
         END IF;
