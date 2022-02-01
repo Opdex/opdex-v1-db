@@ -5,13 +5,12 @@ CREATE PROCEDURE VaultProposalCertificateBugFix ()
     SELECT COUNT(*) into @exists
     FROM information_schema.tables
     WHERE table_schema = 'platform'
-        AND table_name = 'vault_proposal_certificate'
-    LIMIT 1;
+        AND table_name = 'vault_proposal_certificate';
 
-    IF @exists > 0 THEN 
+    IF @exists > 0 THEN
         -- Drop the table
         DROP TABLE vault_proposal_certificate;
-    
+
         -- Recreate it correctly
         CREATE TABLE IF NOT EXISTS vault_proposal_certificate
         (
@@ -29,42 +28,53 @@ CREATE PROCEDURE VaultProposalCertificateBugFix ()
                 REFERENCES vault_certificate (Id)
                 ON DELETE CASCADE
         ) ENGINE=INNODB;
-    
-    
-        -- Create relationship for Created certificates
-        INSERT IGNORE INTO vault_proposal_certificate
-            SELECT
-                p.Id AS ProposalId,
-                vc.Id AS CertificateId,
-                vc.CreatedBlock AS CreatedBlock,
-                vc.CreatedBlock AS ModifiedBlock
-            FROM vault_proposal p
-            LEFT JOIN vault_proposal_type vpt ON vpt.ProposalType = p.ProposalTypeId
-            LEFT JOIN vault_certificate vc ON vc.Amount = p.Amount AND vc.Owner = p.Wallet AND vc.VaultId = p.VaultId
-            WHERE vpt.ProposalType = 'Create' AND vc.Id IS NOT NULL;
-    
-        -- Create relationship for Revoked certificates
-        INSERT IGNORE INTO vault_proposal_certificate
-            SELECT
-                p.Id,
-                vc.Id,
-                p.CreatedBlock,
-                p.CreatedBlock
-            FROM vault_proposal p
-            LEFT JOIN vault_proposal_type vpt ON vpt.ProposalType = p.ProposalTypeId
-            LEFT JOIN vault_certificate vc ON vc.Amount = p.Amount AND vc.Owner = p.Wallet AND vc.VaultId = p.VaultId
-            WHERE vpt.ProposalType = 'Revoke' AND vc.Id IS NOT NULL;
+
+        SELECT COUNT(*) INTO @createsExist
+        FROM vault_proposal p
+        LEFT JOIN vault_proposal_type vpt ON vpt.ProposalType = p.ProposalTypeId
+        LEFT JOIN vault_certificate vc ON vc.Amount = p.Amount AND vc.Owner = p.Wallet AND vc.VaultId = p.VaultId
+        WHERE vpt.ProposalType = 'Create' AND vc.Id IS NOT NULL;
+
+        IF @createsExist > 0 THEN
+            -- Create relationship for Created certificates
+            INSERT IGNORE INTO vault_proposal_certificate
+                SELECT
+                    p.Id AS ProposalId,
+                    vc.Id AS CertificateId
+                FROM vault_proposal p
+                LEFT JOIN vault_proposal_type vpt ON vpt.ProposalType = p.ProposalTypeId
+                LEFT JOIN vault_certificate vc ON vc.Amount = p.Amount AND vc.Owner = p.Wallet AND vc.VaultId = p.VaultId
+                WHERE vpt.ProposalType = 'Create' AND vc.Id IS NOT NULL;
+        END IF;
+
+        SELECT COUNT(*) INTO @revokesExist
+        FROM vault_proposal p
+        LEFT JOIN vault_proposal_type vpt ON vpt.ProposalType = p.ProposalTypeId
+        LEFT JOIN vault_certificate vc ON vc.Amount = p.Amount AND vc.Owner = p.Wallet AND vc.VaultId = p.VaultId
+        WHERE vpt.ProposalType = 'Revoke' AND vc.Id IS NOT NULL;
+
+        IF @revokesExist > 0 THEN
+            -- Create relationship for Revoked certificates
+            INSERT IGNORE INTO vault_proposal_certificate
+                SELECT
+                    p.Id AS ProposalId,
+                    vc.Id AS CertificateId
+                FROM vault_proposal p
+                LEFT JOIN vault_proposal_type vpt ON vpt.ProposalType = p.ProposalTypeId
+                LEFT JOIN vault_certificate vc ON vc.Amount = p.Amount AND vc.Owner = p.Wallet AND vc.VaultId = p.VaultId
+                WHERE vpt.ProposalType = 'Revoke' AND vc.Id IS NOT NULL;
+        END IF;
     END IF;
 
 
     -- Separate Fix for changing FK on token_chain table
-    SELECT COUNT(*) INTO @indexExists 
+    SELECT COUNT(*) INTO @indexExists
     FROM INFORMATION_SCHEMA.STATISTICS
     WHERE table_schema='platform' AND table_name='token_chain' AND index_name='token_chain_native_address_uq';
 
     IF @indexExists > 0 THEN
 
-        DROP INDEX IF EXISTS token_chain_native_address_uq ON token_chain;
+        DROP INDEX token_chain_native_address_uq ON token_chain;
         ALTER TABLE token_chain ADD INDEX token_chain_native_address_ix (NativeAddress);
     END IF;
  END;
