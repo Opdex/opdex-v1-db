@@ -813,6 +813,29 @@ CREATE PROCEDURE CreateDatabase ()
                 REFERENCES token_attribute_type (Id)
         ) ENGINE=INNODB;
 
+        CREATE TABLE IF NOT EXISTS chain_type(
+            Id      SMALLINT UNSIGNED NOT NULL,
+            Name    VARCHAR(50) NOT NULL,
+            PRIMARY KEY (Id),
+            UNIQUE chain_type_name_uq (Name)
+        ) ENGINE = INNODB;
+
+        CREATE TABLE IF NOT EXISTS token_chain(
+            Id                  BIGINT UNSIGNED AUTO_INCREMENT,
+            TokenId             BIGINT UNSIGNED NOT NULL,
+            NativeChainTypeId   SMALLINT UNSIGNED NOT NULL,
+            NativeAddress       VARCHAR(100) NULL,
+            PRIMARY KEY (Id),
+            UNIQUE token_chain_token_id_uq (TokenId),
+            UNIQUE token_chain_native_address_uq (NativeAddress),
+            CONSTRAINT token_chain_token_id_token_id_fk
+                FOREIGN KEY (TokenId)
+                REFERENCES token (Id) ON DELETE CASCADE,
+            CONSTRAINT token_chain_native_chain_type_id_chain_type_id_fk
+                FOREIGN KEY (NativeChainTypeId)
+                REFERENCES chain_type (Id)
+        ) ENGINE = INNODB;
+
         -- --------
         -- --------
         -- Populate Lookup Type Tables
@@ -877,7 +900,8 @@ CREATE PROCEDURE CreateDatabase ()
             (1, 'Provisional'),
             (2, 'NonProvisional'),
             (3, 'Staking'),
-            (4, 'Security');
+            (4, 'Security'),
+            (5, 'Interflux');
 
         INSERT IGNORE INTO vault_proposal_type(Id, ProposalType)
         VALUES
@@ -891,6 +915,11 @@ CREATE PROCEDURE CreateDatabase ()
             (1, 'Pledge'),
             (2, 'Vote'),
             (3, 'Complete');
+
+
+        INSERT IGNORE INTO chain_type(Id, Name)
+        VALUES
+            (1, 'Ethereum');
     END;
 //
 
