@@ -823,6 +823,7 @@ CREATE PROCEDURE CreateDatabase ()
         CREATE TABLE IF NOT EXISTS token_chain(
             Id                  BIGINT UNSIGNED AUTO_INCREMENT,
             TokenId             BIGINT UNSIGNED NOT NULL,
+            Owner               VARCHAR(50) NOT NULL,
             NativeChainTypeId   SMALLINT UNSIGNED NOT NULL,
             NativeAddress       VARCHAR(100) NULL,
             PRIMARY KEY (Id),
