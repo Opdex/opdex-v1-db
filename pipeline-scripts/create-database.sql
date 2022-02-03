@@ -820,21 +820,29 @@ CREATE PROCEDURE CreateDatabase ()
             UNIQUE chain_type_name_uq (Name)
         ) ENGINE = INNODB;
 
-        CREATE TABLE IF NOT EXISTS token_chain(
+        CREATE TABLE IF NOT EXISTS token_wrapped(
             Id                  BIGINT UNSIGNED AUTO_INCREMENT,
             TokenId             BIGINT UNSIGNED NOT NULL,
             Owner               VARCHAR(50) NOT NULL,
             NativeChainTypeId   SMALLINT UNSIGNED NOT NULL,
             NativeAddress       VARCHAR(100) NULL,
+            CreatedBlock        BIGINT UNSIGNED NOT NULL,
+            ModifiedBlock       BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
-            UNIQUE token_chain_token_id_uq (TokenId),
-            UNIQUE token_chain_native_address_uq (NativeAddress),
-            CONSTRAINT token_chain_token_id_token_id_fk
+            UNIQUE token_wrapped_token_id_uq (TokenId),
+            INDEX token_wrapped_native_address_ix (NativeAddress),
+            CONSTRAINT token_wrapped_token_id_token_id_fk
                 FOREIGN KEY (TokenId)
                 REFERENCES token (Id) ON DELETE CASCADE,
-            CONSTRAINT token_chain_native_chain_type_id_chain_type_id_fk
+            CONSTRAINT token_wrapped_native_chain_type_id_chain_type_id_fk
                 FOREIGN KEY (NativeChainTypeId)
-                REFERENCES chain_type (Id)
+                REFERENCES chain_type (Id),
+            CONSTRAINT token_wrapped_created_block_block_height_fk
+                FOREIGN KEY (CreatedBlock)
+                REFERENCES block (Height),
+            CONSTRAINT token_wrapped_modified_block_block_height_fk
+                FOREIGN KEY (ModifiedBlock)
+                REFERENCES block (Height)
         ) ENGINE = INNODB;
 
         -- --------
