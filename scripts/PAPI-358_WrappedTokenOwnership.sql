@@ -38,9 +38,9 @@ CREATE PROCEDURE CreateWrappedTokenOwnership ()
                 REFERENCES block (Height);
     END IF;
 
-    ALTER TABLE token_chain DROP CONSTRAINT token_chain_token_id_token_id_fk;
-    ALTER TABLE token_chain DROP CONSTRAINT token_chain_native_chain_type_id_chain_type_id_fk;
-    ALTER TABLE token_chain DROP CONSTRAINT token_chain_token_id_uq;
+    ALTER TABLE token_chain DROP FOREIGN KEY token_chain_token_id_token_id_fk;
+    ALTER TABLE token_chain DROP FOREIGN KEY token_chain_native_chain_type_id_chain_type_id_fk;
+    ALTER TABLE token_chain DROP INDEX token_chain_token_id_uq;
     ALTER TABLE token_chain DROP INDEX token_chain_native_address_ix;
 
     ALTER TABLE token_chain ADD INDEX token_wrapped_native_address_ix (NativeAddress);
