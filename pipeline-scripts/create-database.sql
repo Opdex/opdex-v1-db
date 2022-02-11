@@ -172,18 +172,10 @@ CREATE PROCEDURE CreateDatabase ()
             PeriodIndex                  INT             NOT NULL,
             DistributionBlock            BIGINT UNSIGNED NOT NULL,
             NextDistributionBlock        BIGINT UNSIGNED NOT NULL,
-            CreatedBlock                 BIGINT UNSIGNED NOT NULL,
-            ModifiedBlock                BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
             CONSTRAINT token_distribution_token_id_token_id_fk
                 FOREIGN KEY (TokenId)
-                REFERENCES token (Id),
-            CONSTRAINT token_distribution_created_block_block_height_fk
-                FOREIGN KEY (CreatedBlock)
-                REFERENCES block (Height),
-            CONSTRAINT token_distribution_modified_block_block_height_fk
-                FOREIGN KEY (ModifiedBlock)
-                REFERENCES block (Height)
+                REFERENCES token (Id)
         ) ENGINE=INNODB;
 
         CREATE TABLE IF NOT EXISTS snapshot_type

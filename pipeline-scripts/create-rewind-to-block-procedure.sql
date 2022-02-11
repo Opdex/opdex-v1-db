@@ -66,7 +66,7 @@ BEGIN
         DELETE FROM market_snapshot WHERE StartDate >= @rewindBlockStartOfDay; -- only track daily snapshots
         DELETE FROM market WHERE CreatedBlock > rewindHeight;
         DELETE FROM market_deployer WHERE CreatedBlock > rewindHeight;
-        DELETE FROM token_distribution WHERE CreatedBlock > rewindHeight;
+        DELETE FROM token_distribution WHERE DistributionBlock > rewindHeight;
         DELETE FROM token WHERE CreatedBlock > rewindHeight;
 
         -- Update any remaining records setting ModifiedBlock to the rewind height
@@ -85,7 +85,6 @@ BEGIN
         UPDATE market_summary SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE market SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE market_deployer SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
-        UPDATE token_distribution SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE token SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE vault_proposal_vote SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
         UPDATE vault_proposal_pledge SET ModifiedBlock = rewindHeight WHERE ModifiedBlock > rewindHeight;
