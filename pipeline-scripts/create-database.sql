@@ -949,7 +949,7 @@ DROP PROCEDURE CreateDatabase;
 CREATE EVENT IF NOT EXISTS remove_expired_auth_success_event
 ON SCHEDULE EVERY 5 MINUTE
 DO
-DELETE FROM auth_success WHERE auth_success.Expiry < UTC_TIMESTAMP();
+DELETE FROM auth_success WHERE Expiry < UTC_TIMESTAMP();
 //
 
 DELIMITER ;
