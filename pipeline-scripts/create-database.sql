@@ -838,6 +838,13 @@ CREATE PROCEDURE CreateDatabase ()
                 REFERENCES block (Height)
         ) ENGINE = INNODB;
 
+        CREATE TABLE IF NOT EXISTS auth_success(
+            ConnectionId       VARCHAR(255) NOT NULL,
+            Signer             VARCHAR(50) NOT NULL,
+            Expiry             DATETIME NOT NULL,
+            PRIMARY KEY (ConnectionId)
+        ) ENGINE = INNODB;
+
         -- --------
         -- --------
         -- Populate Lookup Type Tables
@@ -931,6 +938,18 @@ CALL CreateDatabase();
 //
 
 DROP PROCEDURE CreateDatabase;
+//
+
+-- --------
+-- --------
+-- Events
+-- --------
+-- --------
+
+CREATE EVENT IF NOT EXISTS remove_expired_auth_success_event
+ON SCHEDULE EVERY 5 MINUTE
+DO
+DELETE FROM auth_success WHERE Expiry < UTC_TIMESTAMP();
 //
 
 DELIMITER ;
