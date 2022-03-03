@@ -819,6 +819,7 @@ CREATE PROCEDURE CreateDatabase ()
             NativeChainTypeId   SMALLINT UNSIGNED NOT NULL,
             NativeAddress       VARCHAR(100) NULL,
             Validated           BIT NOT NULL,
+            Trusted             BIT NOT NULL,
             CreatedBlock        BIGINT UNSIGNED NOT NULL,
             ModifiedBlock       BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
