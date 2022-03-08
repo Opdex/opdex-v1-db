@@ -98,7 +98,7 @@ BEGIN
 
         -- Update values calculated in stored procedures
         -- --------------------------------------------------------------------
-        CALL UpdateMarketSummaryLiquidityPoolCount(rewindHeight);
+        CALL UpdateMarketSummaryLiquidityPoolCount(0, rewindHeight);
 
         -- In Code
         -- --------------------------------------------------------------------

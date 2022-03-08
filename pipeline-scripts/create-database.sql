@@ -959,11 +959,18 @@ DELETE FROM auth_success WHERE Expiry < UTC_TIMESTAMP();
 -- --------
 -- --------
 
-CREATE PROCEDURE UpdateMarketSummaryLiquidityPoolCount(IN blockHeight bigint unsigned)
+CREATE PROCEDURE UpdateMarketSummaryLiquidityPoolCount(IN marketId BIGINT UNSIGNED, IN blockHeight BIGINT UNSIGNED)
     BEGIN
-        UPDATE market_summary ms
-        SET LiquidityPoolCount = (SELECT COUNT(pl.Id) FROM pool_liquidity pl WHERE pl.MarketId = ms.MarketId), ModifiedBlock = blockHeight
-        WHERE ms.Id > 0; # without the WHERE clause, MYSQL will create a warning and won't execute the query
+        DECLARE _marketId BIGINT UNSIGNED DEFAULT marketId; # clear up ambiguity
+        IF (_marketId > 0) THEN
+            UPDATE market_summary ms
+            SET LiquidityPoolCount = (SELECT COUNT(pl.Id) FROM pool_liquidity pl WHERE pl.MarketId = ms.MarketId), ModifiedBlock = blockHeight
+            WHERE ms.MarketId = _marketId;
+        ELSE
+            UPDATE market_summary ms
+            SET LiquidityPoolCount = (SELECT COUNT(pl.Id) FROM pool_liquidity pl WHERE pl.MarketId = ms.MarketId), ModifiedBlock = blockHeight
+            WHERE ms.MarketId > 0; # without the WHERE clause, MYSQL will create a warning and won't execute the query
+        END IF;
     END;
 //
 
