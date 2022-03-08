@@ -22,15 +22,15 @@ DROP PROCEDURE AddMarketPoolCount;
 //
 
 DROP PROCEDURE IF EXISTS UpdateMarketSummaryLiquidityPoolCount;
-CREATE PROCEDURE UpdateMarketSummaryLiquidityPoolCount()
+CREATE PROCEDURE UpdateMarketSummaryLiquidityPoolCount(IN blockHeight bigint unsigned)
     BEGIN
         UPDATE market_summary ms
-        SET LiquidityPoolCount = (SELECT COUNT(pl.Id) FROM pool_liquidity pl WHERE pl.MarketId = ms.MarketId)
+        SET LiquidityPoolCount = (SELECT COUNT(pl.Id) FROM pool_liquidity pl WHERE pl.MarketId = ms.MarketId), ModifiedBlock = blockHeight
         WHERE ms.Id > 0; # without the WHERE clause, MYSQL will create a warning and won't execute the query
     END;
 //
 
-CALL UpdateMarketSummaryLiquidityPoolCount();
+CALL UpdateMarketSummaryLiquidityPoolCount((SELECT Height FROM block ORDER BY Height DESC LIMIT 1));
 //
 
 DELIMITER ;
