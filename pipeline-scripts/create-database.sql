@@ -222,6 +222,7 @@ CREATE PROCEDURE CreateDatabase ()
             DailyStakingUsdChangePercent    DECIMAL(30, 8)  NOT NULL,
             ProviderRewardsDailyUsd         DECIMAL(30, 8)  NOT NULL,
             MarketRewardsDailyUsd           DECIMAL(30, 8)  NOT NULL,
+            LiquidityPoolCount              INT UNSIGNED NOT NULL,
             CreatedBlock                    BIGINT UNSIGNED NOT NULL,
             ModifiedBlock                   BIGINT UNSIGNED NOT NULL,
             PRIMARY KEY (Id),
@@ -950,6 +951,20 @@ CREATE EVENT IF NOT EXISTS remove_expired_auth_success_event
 ON SCHEDULE EVERY 5 MINUTE
 DO
 DELETE FROM auth_success WHERE Expiry < UTC_TIMESTAMP();
+//
+
+-- --------
+-- --------
+-- Stored Procedures
+-- --------
+-- --------
+
+CREATE PROCEDURE UpdateMarketSummaryLiquidityPoolCount()
+    BEGIN
+        UPDATE market_summary ms
+        SET LiquidityPoolCount = (SELECT COUNT(pl.Id) FROM pool_liquidity pl WHERE pl.MarketId = ms.MarketId)
+        WHERE ms.Id > 0; # without the WHERE clause, MYSQL will create a warning and won't execute the query
+    END;
 //
 
 DELIMITER ;
