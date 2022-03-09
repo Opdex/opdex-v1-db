@@ -960,6 +960,9 @@ DELETE FROM auth_success WHERE Expiry < UTC_TIMESTAMP();
 -- --------
 -- --------
 
+DROP PROCEDURE IF EXISTS UpdateMarketSummaryLiquidityPoolCount;
+//
+
 CREATE PROCEDURE UpdateMarketSummaryLiquidityPoolCount(IN marketId BIGINT UNSIGNED, IN blockHeight BIGINT UNSIGNED)
     BEGIN
         DECLARE _marketId BIGINT UNSIGNED DEFAULT marketId; # clear up ambiguity
