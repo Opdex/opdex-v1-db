@@ -96,6 +96,10 @@ BEGIN
         -- --------------------------------------------------------------------
         DELETE FROM block WHERE Height > rewindHeight;
 
+        -- Update values calculated in stored procedures
+        -- --------------------------------------------------------------------
+        CALL UpdateMarketSummaryLiquidityPoolCount(0, rewindHeight);
+
         -- In Code
         -- --------------------------------------------------------------------
         -- Retrieve every record where ModifiedBlock = rewindHeight and refresh based on FN data
