@@ -847,6 +847,14 @@ CREATE PROCEDURE CreateDatabase ()
             PRIMARY KEY (ConnectionId)
         ) ENGINE = INNODB;
 
+        CREATE TABLE IF NOT EXISTS auth_access_code(
+            Id                 BIGINT UNSIGNED AUTO_INCREMENT,
+            AccessCode         VARCHAR(50) NOT NULL,
+            Signer             VARCHAR(50) NOT NULL,
+            Expiry             DATETIME NOT NULL,
+            PRIMARY KEY (ConnectionId)
+        ) ENGINE = INNODB;
+
         -- --------
         -- --------
         -- Populate Lookup Type Tables
@@ -948,10 +956,15 @@ DROP PROCEDURE CreateDatabase;
 -- --------
 -- --------
 
+DROP EVENT IF EXISTS remove_expired_auth_success_event;
+
 CREATE EVENT IF NOT EXISTS remove_expired_auth_success_event
 ON SCHEDULE EVERY 5 MINUTE
 DO
-DELETE FROM auth_success WHERE Expiry < UTC_TIMESTAMP();
+    BEGIN
+        DELETE FROM auth_success WHERE Expiry < UTC_TIMESTAMP();
+        DELETE FROM auth_access_code WHERE Expiry < UTC_TIMESTAMP();
+    END
 //
 
 -- --------
@@ -973,7 +986,7 @@ CREATE PROCEDURE UpdateMarketSummaryLiquidityPoolCount(IN marketId BIGINT UNSIGN
         ELSE
             UPDATE market_summary ms
             SET LiquidityPoolCount = (SELECT COUNT(pl.Id) FROM pool_liquidity pl WHERE pl.MarketId = ms.MarketId), ModifiedBlock = blockHeight
-            WHERE ms.MarketId > 0; # without the WHERE clause, MYSQL will create a warning and won't execute the query
+            WHERE ms.MarketId > 0; -- without the WHERE clause, MYSQL will create a warning and won't execute the query
         END IF;
     END;
 //
